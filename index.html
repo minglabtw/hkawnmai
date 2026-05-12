@@ -524,7 +524,7 @@ body:hover #cursorGlow{opacity:1}
 <div class="op">
 <div class="oh"></div>
 <div class="settings-section">
-<div class="setting-row" style="cursor:pointer" onclick="closeSettings();openManual()">
+<div class="setting-row" style="cursor:pointer" onclick="showManualFromSettings()">
   <span style="font-size:15px;font-weight:600;color:var(--tier)">📖 使用说明</span>
   <span style="font-size:12px;color:var(--text3)">查看 →</span>
 </div>
@@ -1136,6 +1136,7 @@ function openSettings(){
   sndClick()
 }
 function closeSettings(){$('ovSettings').classList.remove('act');sndClick()}
+function showManualFromSettings(){$('ovSettings').classList.remove('act');$('ovManual').classList.add('act');sndClick()}
 function resetTier(tier){
   if(!confirm(tier==='beginner'?T('rRstB'):tier==='intermediate'?T('rRstI'):T('rRstA')))return;
   try{localStorage.removeItem('h_'+tier+'_done');localStorage.removeItem('h_'+tier+'_quiz');localStorage.removeItem('h_'+tier+'_badges');localStorage.removeItem('h_'+tier+'_review')}catch(e){}

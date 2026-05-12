@@ -351,9 +351,8 @@ body:hover #cursorGlow{opacity:1}
 <div class="scr act" id="scrHome">
   <div class="hd">
     <h1 style="font-size:22px;animation:titleFloat 3s ease-in-out infinite">HKAWN MAI 学中文 <small style="font-size:12px;color:var(--text3);font-weight:400;animation:none">v0.2.1</small></h1>
-    <div class="hd-r">
-      <button class="hd-icon" onclick="openManual()" title="使用手册">📖</button>
-      <button class="hd-icon" onclick="openSettings()" title="设置">⚙️</button>
+     <div class="hd-r">
+       <button class="hd-icon" onclick="openSettings()" title="设置">⚙️</button>
       <button class="hd-btn" onclick="toggleLang()" style="font-size:13px">မြန်မာ</button>
       <button class="theme-btn" onclick="toggleTheme()" style="font-size:18px">🌙</button>
     </div>
@@ -525,6 +524,12 @@ body:hover #cursorGlow{opacity:1}
 <div class="op">
 <div class="oh"></div>
 <div class="settings-section">
+<div class="setting-row" style="cursor:pointer" onclick="closeSettings();openManual()">
+  <span style="font-size:15px;font-weight:600;color:var(--tier)">📖 使用说明</span>
+  <span style="font-size:12px;color:var(--text3)">查看 →</span>
+</div>
+</div>
+<div class="settings-section">
 <div class="settings-label" id="sDataTitle">📤 数据管理</div>
 <div class="setting-row"><span id="sExport">💾 导出进度</span><button class="primary" id="sExportBtn" onclick="exportData()">下载</button></div>
 <div class="setting-row"><span id="sImport">📂 导入进度</span><button class="primary" id="sImportBtn" onclick="document.getElementById('importFile').click()">上传</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"></div>
@@ -626,7 +631,6 @@ function tn(n){return tiers[currentTier].name}
 
 // ===== REVIEW SYSTEM (Spaced Repetition) =====
 var BOX_INTERVALS=[0,60000,600000,3600000,86400000,259200000,604800000,2592000000]; // 0~7
-var MAX_NEW_DAILY=10;
 function getReviewKey(tier){return 'h_'+tier+'_review'}
 function loadReviewData(tier){
   try{var d=localStorage.getItem(getReviewKey(tier));reviewData=d?JSON.parse(d):{}}catch(e){reviewData={}}
@@ -894,12 +898,9 @@ function buildOrder(){
   dueForgotten.sort(function(a,b){return (reviewData[a].due||0)-(reviewData[b].due||0)});
   dueWords.sort(function(a,b){return (reviewData[a].due||0)-(reviewData[b].due||0)});
   dueWords=dueForgotten.concat(dueWords);
-  // Limit new words per day
-  var newLimit=Math.max(0,MAX_NEW_DAILY-dueWords.length);
-  if(newWords.length>newLimit)newWords=newWords.slice(0,newLimit);
-  // Build order: due first, then new, then high-box (for review)
+  // Build order: due first, then new words
   order=dueWords.concat(newWords);
-  // Save today's new word count
+  // Save new words count
   if(newWords.length>0){
     try{localStorage.setItem('h_'+currentTier+'_new_day',newWords.length+'_'+Math.floor(now/86400000))}catch(e){}
   }

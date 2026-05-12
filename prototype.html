@@ -110,9 +110,9 @@ body:hover #cursorGlow{opacity:1}
 
 /* ===== SMALL SCREEN ===== */
 @media(max-width:380px){
-  .cd{min-height:200px}
-  .ci{min-height:200px}
-  .cf{min-height:200px;padding:16px 12px}
+  .cd{min-height:auto}
+  .ci{min-height:auto}
+  .cf{min-height:auto;padding:16px 12px}
   .home-card{padding:12px 4px}
   .home-ring{width:52px;height:52px}
   .home-ring svg{width:52px;height:52px}
@@ -188,15 +188,17 @@ body:hover #cursorGlow{opacity:1}
 .dark .tab.active{background:rgba(91,159,143,.18)}
 
 /* ===== CARD ===== */
-.cd{position:relative;margin-bottom:8px;perspective:1000px;border-radius:18px;min-height:260px;box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08)}
+.cd{position:relative;margin-bottom:8px;border-radius:18px;min-height:auto}
 .cd::after{content:'';position:absolute;inset:-5px;border-radius:23px;background:var(--tier);opacity:0;filter:blur(14px);z-index:-1;pointer-events:none;transition:opacity .4s}
-.cd:hover{box-shadow:0 4px 8px rgba(0,0,0,.06),0 10px 28px rgba(0,0,0,.1),0 20px 50px rgba(0,0,0,.12)}
-.cd:hover::after{opacity:.35}
-.ci{position:relative;width:100%;min-height:260px;transition:transform .5s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
-.ci.fd{transform:rotateY(180deg)}
-.cf{position:absolute;top:0;left:0;width:100%;min-height:260px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:18px;padding:24px 16px;background:var(--card-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08),0 1px 0 rgba(255,255,255,.3) inset,0 -1px 0 rgba(0,0,0,.04) inset}
+@media(hover:hover){.cd:hover::after{opacity:.35}}
+.ci{position:relative;width:100%;display:grid;grid-template-areas:"card"}
+.ci .cf{position:relative;grid-area:card;width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:18px;padding:24px 16px;background:var(--card-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08)}
 .dark .cf{box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08),0 1px 0 rgba(255,255,255,.04) inset}
-.cb{transform:rotateY(180deg);background:var(--card-back)}
+.ci .cb{display:none;background:var(--card-back)}
+@media(max-width:767px){
+  .ci.fd .cf:not(.cb){display:none}
+  .ci.fd .cb{display:flex}
+}
 .cw{font-size:44px;color:var(--text);margin-bottom:6px}
 .cp{font-size:18px;color:var(--text3);margin-bottom:10px}
 .cbtn{width:48px;height:48px;border-radius:50%;border:none;background:#E5F0EC;color:#5B9F8F;font-size:20px;cursor:pointer;margin:0 auto;display:block}
@@ -208,7 +210,8 @@ body:hover #cursorGlow{opacity:1}
 .cep{font-size:13px;color:var(--text3);margin:4px 0}
 .cem{font-size:14px;color:var(--text2);line-height:1.5}
 
-.ac{display:flex;gap:8px;margin-top:12px;margin-bottom:8px;position:relative;z-index:2;background:var(--bg1);padding:8px 4px;border-radius:10px}
+.ac{display:flex;gap:8px;margin-top:12px;margin-bottom:8px;position:relative;z-index:2;background:var(--bg1);padding:8px 4px;border-radius:10px;opacity:.3;pointer-events:none;transition:opacity .25s}
+.ac.active{opacity:1;pointer-events:auto}
 .btn{flex:1;padding:14px;border:2px solid transparent;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
 .btn:active{transform:scale(.96)}
 .bf{background:rgba(232,221,213,.8);color:#B06060;border-color:#B06060}
@@ -294,6 +297,11 @@ body:hover #cursorGlow{opacity:1}
 @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .oh{width:36px;height:4px;background:var(--text3);border-radius:2px;margin:0 auto 14px;opacity:.4}
 .occ{width:100%;padding:14px;border:none;border-radius:12px;background:var(--tier);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .3s}
+
+.am-opt{display:flex;align-items:center;gap:8px;padding:14px 16px;margin:6px 0;border-radius:12px;background:var(--glass);cursor:pointer;transition:background .2s;font-size:15px;border:1px solid var(--glass-border)}
+.am-opt:active{background:var(--bg3)}
+.am-rd{font-size:18px;color:var(--tier);width:20px;text-align:center}
+.am-sz{font-size:12px;color:var(--text3);margin-left:auto}
 
 /* ===== DESKTOP ===== */
 @media(min-width:768px){
@@ -437,7 +445,7 @@ body:hover #cursorGlow{opacity:1}
         <div class="cep" id="lEp"></div><div class="cem" id="lEm"></div></div>
     </div>
   </div>
-  <div class="ac" id="lActs" style="display:none">
+  <div class="ac" id="lActs">
     <button class="btn bf" onclick="mark(0)">✕ <span id="lForgot">忘了</span></button>
     <button class="btn br" onclick="mark(1)">✓ <span id="lRemember">记得</span></button>
   </div>
@@ -547,6 +555,18 @@ body:hover #cursorGlow{opacity:1}
 <div style="font-size:12px;color:var(--text3);text-align:center;margin-top:12px;line-height:1.5">
 HSK 官方大纲 · Antigravity(Gemini 3 Flash)翻译 · edge-tts Yunxi · pypinyin<br>
 v0.2.1 · 2026
+</div>
+</div></div>
+
+<!-- AUDIO MODE DIALOG -->
+<div class="ov" id="audioModeDialog" onclick="if(event.target===this)hideAudioModeDialog()">
+<div class="op" style="max-width:360px"><div class="oh"></div>
+<div class="settings-label">🔊 選擇下載內容</div>
+<div class="am-opt" onclick="pickAudioMode('word')"><span class="am-rd" id="amRdWord">○</span> 📖 僅單字發音 <span class="am-sz" id="amSzWord"></span></div>
+<div class="am-opt" onclick="pickAudioMode('full')"><span class="am-rd" id="amRdFull">○</span> 📖🔊 完整含例句 <span class="am-sz" id="amSzFull"></span></div>
+<div style="display:flex;gap:8px;margin-top:8px">
+<button class="occ" style="flex:1;background:var(--bg3);color:var(--text2)" onclick="hideAudioModeDialog()">取消</button>
+<button class="occ" style="flex:2" id="amConfirmBtn" onclick="confirmAudioMode()">開始下載</button>
 </div>
 </div></div>
 
@@ -781,7 +801,39 @@ function downloadZipPart(tier,url,partsIdx,loaded,total,retries){
   });
 }
 
+var _pendingAudioTier=null;
+function showAudioModeDialog(tier){
+  _pendingAudioTier=tier;
+  var m=getAudioMode();
+  $('amRdWord').textContent=m==='word'?'◉':'○';
+  $('amRdFull').textContent=m==='full'?'◉':'○';
+  var s=audioModeSizes[tier];
+  $('amSzWord').textContent='('+(s?s.word:'')+')';
+  $('amSzFull').textContent='('+(s?s.full:'')+')';
+  $('amConfirmBtn').textContent=isAudioCached(tier)?'切換模式並重新下載':'開始下載';
+  $('audioModeDialog').classList.add('act');
+  sndClick()
+}
+function pickAudioMode(m){
+  $('amRdWord').textContent=m==='word'?'◉':'○';
+  $('amRdFull').textContent=m==='full'?'◉':'○';
+  setAudioMode(m)
+}
+function hideAudioModeDialog(){$('audioModeDialog').classList.remove('act')}
+function confirmAudioMode(){
+  $('audioModeDialog').classList.remove('act');
+  clearAudioCache();
+  startAudioDownloadImpl(_pendingAudioTier)
+}
+
 function startAudioDownload(tier){
+  if(!IS_PWA||!audioDB)return;
+  if(audioDL[tier]&&audioDL[tier].downloading)return;
+  if(isAudioCached(tier)&&getDoneParts(tier).length===getAudioParts(tier).length){updateAudioUI(tier);return}
+  showAudioModeDialog(tier)
+}
+
+function startAudioDownloadImpl(tier){
   if(!IS_PWA||!audioDB)return;
   if(audioDL[tier]&&audioDL[tier].downloading)return;
   if(isAudioCached(tier))return;
@@ -857,7 +909,7 @@ function playAudio(f){
       if(blob){
         new Audio(URL.createObjectURL(blob)).play().catch(function(){});
       }else if(!audioDL[currentTier]||!audioDL[currentTier].downloading){
-        startAudioDownload(currentTier);
+        startAudioDownloadImpl(currentTier);
       }
     });
   }
@@ -1054,19 +1106,9 @@ function buildOrder(){
 function activateTab(i){document.querySelectorAll('.tab').forEach(function(t,j){t.classList.toggle('active',j===i)})}
 function showLearn(){$('appHeader').style.display='block';$('filterBar').style.display='flex';activateTab(0);scr('scrLearn');sndClick()}
 function doFlip(){
-  if(!$('ci').classList.contains('fd')){$('ci').classList.add('fd');$('lActs').style.display='flex';sndFlip();setCardHeight()}
+  if(!$('ci').classList.contains('fd')){$('ci').classList.add('fd');$('lActs').classList.add('active');sndFlip()}
 }
-function showFront(){$('ci').classList.remove('fd');$('lActs').style.display='none';setCardHeight()}
-
-function setCardHeight(){
-  var ci=$('ci');if(!ci)return;
-  ci.style.height='auto';ci.style.minHeight='260px';
-  var faces=ci.querySelectorAll('.cf');var h=260;
-  for(var i=0;i<faces.length;i++){var sh=faces[i].scrollHeight;if(sh>h)h=sh}
-  h+=16;
-  if(window.innerWidth>=768){ci.style.height='';ci.style.minHeight='';return}
-  ci.style.height=h+'px';ci.style.minHeight=h+'px';
-}
+function showFront(){$('ci').classList.remove('fd');$('lActs').classList.remove('active')}
 
 function nextCard(){
   if(lCur>=order.length){$('lWord').textContent='🎉';$('lPy').textContent=T('lDoneAll');showFront();return}
@@ -1089,7 +1131,6 @@ function nextCard(){
   $('sPct').textContent=done.length>0?Math.round(lRem/done.length*100)+'%':'0%';
   showFront();
   renderRightPanel(w);
-  setTimeout(setCardHeight,0);
 }
 
 function mark(v){
@@ -1310,7 +1351,7 @@ function importData(e){
 
 // ===== SOUND =====
 var audioCtx=null;
-function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||webkitAudioContext)();return audioCtx}
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}
 function snd(freq,dur,type,vol){
   try{var c=getCtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
     o.type=type||'sine';o.frequency.setValueAtTime(freq,c.currentTime);
@@ -1362,6 +1403,8 @@ loadQuizStats();
  showDailySentence();startDailyRotation();showTodayLearn();showHomeStats();
  scr('scrHome');
 openAudioDB(function(){updateAudioUI('beginner')});
+// iOS audio: resume AudioContext on first touch
+document.addEventListener('touchstart',function(){if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume()},{once:true,passive:true});
 $('appHeader').style.display='none';
 $('filterBar').style.display='none';
 // PWA Service Worker

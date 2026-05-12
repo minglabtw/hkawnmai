@@ -5,7 +5,6 @@ android/.gradle/
 android/build/
 android/app/build/
 audio/
-audio-*.zip
 .opencode/
 .DS_Store
 *.log

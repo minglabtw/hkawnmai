@@ -679,10 +679,15 @@ function ensureTierData(tier,cb){
 
 // ===== AUDIO STORE (PWA) =====
 var IS_PWA = location.protocol === 'https:';
-var AUDIO_REPO = 'https://github.com/minglabtw/hkawnmai/releases/download/v0.2.1/';
+var AUDIO_BASE = IS_PWA ? '/hkawnmai/data/' : 'audio/';
 var audioDB = null;
-var audioTiers = {beginner:'audio-beginner.zip',intermediate:'audio-intermediate.zip',advanced:'audio-advanced.zip'};
-var audioDL = {}; // track download progress per tier {downloading:bool, pct:num}
+var audioTiers = {
+  beginner:['audio-beginner.zip'],
+  intermediate:['audio-intermediate.zip'],
+  advanced:['advanced-1.zip','advanced-2.zip']
+};
+var audioTierSizes = {beginner:'32MB',intermediate:'85MB',advanced:'152MB (2 parts)'};
+var audioDL = {};
 
 function openAudioDB(cb){
   if(audioDB){if(cb)cb();return}
@@ -705,8 +710,39 @@ function isAudioCached(tier){
   try{var c=JSON.parse(localStorage.getItem('h_audio_tiers')||'{}');return!!c[tier]}catch(e){return false}
 }
 
-function getAudioTierSize(tier){
-  return tier==='beginner'?'32MB':tier==='intermediate'?'85MB':'152MB';
+function downloadZipPart(tier,url,partsIdx,loaded,total){
+  fetch(url).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.blob();
+  }).then(function(blob){
+    return JSZip.loadAsync(blob);
+  }).then(function(zip){
+    var entries=[];
+    zip.forEach(function(path,file){
+      entries.push(file.async('blob').then(function(b){return{name:path,data:b}}));
+    });
+    return Promise.all(entries);
+  }).then(function(ents){
+    var tx=audioDB.transaction('audio','readwrite');
+    for(var i=0;i<ents.length;i++)tx.objectStore('audio').put(ents[i]);
+    tx.oncomplete=function(){
+      loaded++;
+      if(loaded>=total){
+        var cached;
+        try{cached=JSON.parse(localStorage.getItem('h_audio_tiers')||'{}')}catch(e){cached={}}
+        cached[tier]=true;
+        try{localStorage.setItem('h_audio_tiers',JSON.stringify(cached))}catch(e){}
+        audioDL[tier]={downloading:false,pct:100};
+        updateAudioUI(tier);
+      }else{
+        var nextUrl=AUDIO_BASE+audioTiers[tier][loaded];
+        downloadZipPart(tier,nextUrl,loaded,loaded,total);
+      }
+    };
+  }).catch(function(){
+    audioDL[tier]={downloading:false,pct:-1};
+    updateAudioUI(tier);
+  });
 }
 
 function startAudioDownload(tier){
@@ -715,48 +751,9 @@ function startAudioDownload(tier){
   if(isAudioCached(tier))return;
   audioDL[tier]={downloading:true,pct:0};
   updateAudioUI(tier);
-  fetch(AUDIO_REPO+audioTiers[tier],{mode:'cors'}).then(function(r){
-    if(!r.ok){audioDL[tier]={downloading:false,pct:-1};updateAudioUI(tier);return}
-    var len=Number(r.headers.get('content-length'))||0;
-    var reader=r.body.getReader();
-    var chunks=[];
-    var loaded=0;
-    function readChunk(){
-      reader.read().then(function(result){
-        if(result.done){
-          var blob=new Blob(chunks);
-          JSZip.loadAsync(blob).then(function(zip){
-            var entries=[];
-            zip.forEach(function(path,file){
-              entries.push(file.async('blob').then(function(b){return{name:path,data:b}}));
-            });
-            Promise.all(entries).then(function(ents){
-              var tx=audioDB.transaction('audio','readwrite');
-              for(var i=0;i<ents.length;i++)tx.objectStore('audio').put(ents[i]);
-              tx.oncomplete=function(){
-                var cached;
-                try{cached=JSON.parse(localStorage.getItem('h_audio_tiers')||'{}')}catch(e){cached={}}
-                cached[tier]=true;
-                try{localStorage.setItem('h_audio_tiers',JSON.stringify(cached))}catch(e){}
-                audioDL[tier]={downloading:false,pct:100};
-                updateAudioUI(tier);
-              };
-            });
-          }).catch(function(){audioDL[tier]={downloading:false,pct:-1};updateAudioUI(tier)});
-          return;
-        }
-        chunks.push(result.value);
-        loaded+=result.value.length;
-        if(len>0){
-          var p=Math.round(loaded/len*100);
-          audioDL[tier]={downloading:true,pct:p};
-          updateAudioUI(tier);
-        }
-        readChunk();
-      }).catch(function(){audioDL[tier]={downloading:false,pct:-1};updateAudioUI(tier)});
-    }
-    readChunk();
-  }).catch(function(){audioDL[tier]={downloading:false,pct:-1};updateAudioUI(tier)});
+  var parts=audioTiers[tier];
+  var url=AUDIO_BASE+parts[0];
+  downloadZipPart(tier,url,0,0,parts.length);
 }
 
 function updateAudioUI(tier){
@@ -780,7 +777,7 @@ function updateAudioUI(tier){
     btn.style.cursor='pointer';
     btn.disabled=false;
   }else{
-    btn.textContent='⬇ 下載音頻 ('+getAudioTierSize(tier)+')';
+    btn.textContent='⬇ 下載音頻 ('+(audioTierSizes[tier]||'')+')';
     btn.style.background='var(--tier)';
     btn.style.color='#fff';
     btn.style.cursor='pointer';

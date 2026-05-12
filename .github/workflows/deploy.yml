@@ -26,6 +26,7 @@ jobs:
           cp icons/*.png build/icons/
           cp data/*.js build/data/
           cp data/*.json build/data/
+          cp data/*.zip build/data/
           if [ -d data/reference ]; then
             cp -r data/reference build/data/
           fi

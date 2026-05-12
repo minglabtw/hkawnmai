@@ -2,10 +2,10 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#5B9F8F">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="HKAWN MAI">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -21,8 +21,8 @@
 .dark.tier-i{--tier-glow:rgba(107,143,175,.15)}
 .dark.tier-a{--tier-glow:rgba(154,127,175,.15)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,'Noto Sans SC','Noto Sans Myanmar',sans-serif;background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 40%,var(--bg3) 100%);color:var(--text);min-height:100vh;transition:background .8s}
-#app{max-width:420px;margin:0 auto;padding:16px;min-height:100vh;position:relative;z-index:1}
+body{font-family:-apple-system,'Noto Sans SC','Noto Sans Myanmar',sans-serif;background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 40%,var(--bg3) 100%);color:var(--text);min-height:100dvh;transition:background .8s}
+#app{max-width:420px;margin:0 auto;padding:16px;padding-top:env(safe-area-inset-top,16px);padding-bottom:env(safe-area-inset-bottom,16px);min-height:100dvh;position:relative;z-index:1}
 #bgAtmo{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:
   radial-gradient(ellipse at 15% 20%,rgba(212,167,106,.15) 0%,transparent 45%),
   radial-gradient(ellipse at 78% 25%,rgba(200,150,140,.12) 0%,transparent 40%),
@@ -79,7 +79,7 @@ body:hover #cursorGlow{opacity:1}
 .home-cta{width:100%;padding:16px;border:none;border-radius:14px;font-size:17px;font-weight:600;cursor:pointer;background:var(--tier);color:#fff;box-shadow:0 4px 12px var(--shadow);margin-bottom:12px;transition:background .3s}
 .home-cta:active{transform:scale(.97)}
 /* ===== HOME: 标题栏图标 ===== */
-.hd-icon{width:28px;height:28px;border-radius:7px;border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(8px);font-size:15px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.hd-icon{width:36px;height:36px;border-radius:8px;border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(8px);font-size:17px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:transform .2s}
 .hd-icon:active{transform:scale(.9)}
 
 /* ===== HOME: 每日一句 ===== */
@@ -117,10 +117,10 @@ body:hover #cursorGlow{opacity:1}
   .home-ring{width:52px;height:52px}
   .home-ring svg{width:52px;height:52px}
   .daily-sent{padding:10px 12px;min-height:60px}
-  .hd-icon{width:26px;height:26px;font-size:14px}
+  .hd-icon{width:32px;height:32px;font-size:16px}
 }
 @media(max-width:350px){
-  .hd-icon{width:24px;height:24px;font-size:13px}
+  .hd-icon{width:30px;height:30px;font-size:15px}
   .hd-r{gap:3px}
 }
 
@@ -293,7 +293,7 @@ body:hover #cursorGlow{opacity:1}
 /* ===== OVERLAY ===== */
 .ov{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(44,42,40,.5);z-index:100;justify-content:center;align-items:flex-end}
 .ov.act{display:flex}
-.op{background:var(--card-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:20px 20px 0 0;width:100%;max-width:420px;max-height:80vh;padding:20px;overflow-y:auto;animation:up .25s ease}
+.op{background:var(--card-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:20px 20px 0 0;width:100%;max-width:420px;max-height:80vh;padding:20px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 20px);overflow-y:auto;animation:up .25s ease}
 @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .oh{width:36px;height:4px;background:var(--text3);border-radius:2px;margin:0 auto 14px;opacity:.4}
 .occ{width:100%;padding:14px;border:none;border-radius:12px;background:var(--tier);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .3s}
@@ -739,11 +739,9 @@ function downloadZipPart(tier,url,partsIdx,loaded,total,retries){
       });
       return Promise.all(entries);
     }).then(function(ents){
-      audioDL[tier]={downloading:true,pct:-3,partsIdx:partsIdx}; // -3 = storing
+      audioDL[tier]={downloading:true,pct:-3,partsIdx:partsIdx};
       updateAudioUI(tier);
-      var tx=audioDB.transaction('audio','readwrite');
-      for(var i=0;i<ents.length;i++)tx.objectStore('audio').put(ents[i]);
-      tx.oncomplete=function(){
+      storeAudioBatch(tier,ents,partsIdx,total,function(){
         saveDonePart(tier,partsIdx);
         var dp=getDoneParts(tier);
         audioDL[tier]={downloading:dp.length<total,pct:Math.round(dp.length/total*100),partsIdx:dp.length};
@@ -759,7 +757,7 @@ function downloadZipPart(tier,url,partsIdx,loaded,total,retries){
           var next=AUDIO_BASE+audioTiers[tier][dp.length];
           downloadZipPart(tier,next,dp.length,dp.length,total,0);
         }
-      };
+      });
     }).catch(function(){fail()});
   };
   xhr.onerror=function(){fail()};
@@ -775,6 +773,23 @@ function downloadZipPart(tier,url,partsIdx,loaded,total,retries){
       updateAudioUI(tier);
     }
   }
+}
+
+function storeAudioBatch(tier,entries,partsIdx,total,onDone){
+  var B=50,pos=0;
+  function next(){
+    var end=Math.min(pos+B,entries.length);
+    var tx=audioDB.transaction('audio','readwrite');
+    tx.onerror=function(){setTimeout(next,300)};
+    tx.oncomplete=function(){
+      pos=end;
+      audioDL[tier]={downloading:true,pct:-3,partsIdx:partsIdx,stored:pos,total:entries.length};
+      updateAudioUI(tier);
+      if(pos>=entries.length){onDone()}else{setTimeout(next,0)}
+    };
+    for(var i=pos;i<end;i++)tx.objectStore('audio').put(entries[i]);
+  }
+  next();
 }
 
 function startAudioDownload(tier){
@@ -803,7 +818,10 @@ function updateAudioUI(tier){
   var sp=parts.length>1?' ('+(s?s.partsIdx+1:1)+'/'+parts.length+')':'';
   if(s&&s.downloading){
     if(s.pct===-2){btn.textContent='⬇ 解壓中...';btn.disabled=true;btn.style.background='var(--text3)';btn.style.cursor='default';return}
-    if(s.pct===-3){btn.textContent='⬇ 儲存中...';btn.disabled=true;btn.style.background='var(--text3)';btn.style.cursor='default';return}
+    if(s.pct===-3){
+      var st=s.stored?' '+s.stored+'/'+s.total+'檔':'';
+      btn.textContent='⬇ 儲存中'+st;btn.disabled=true;btn.style.background='var(--text3)';btn.style.cursor='default';return
+    }
     var rt=s.retry?' 重試'+s.retry+'次':'';
     btn.textContent='⬇ 下載中 '+s.pct+'%'+sp+rt;
     btn.style.background='var(--text3)';

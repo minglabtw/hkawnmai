@@ -523,8 +523,11 @@ body:hover #cursorGlow{opacity:1}
 <div class="ov" id="ovSettings" onclick="if(event.target===this)closeSettings()">
 <div class="op">
 <div class="oh"></div>
+
+<!-- Settings Page -->
+<div id="settingsPage">
 <div class="settings-section">
-<div class="setting-row" style="cursor:pointer" onclick="showManualFromSettings()">
+<div class="setting-row" style="cursor:pointer" onclick="showPage('manualPage')">
   <span style="font-size:15px;font-weight:600;color:var(--tier)">📖 使用说明</span>
   <span style="font-size:12px;color:var(--text3)">查看 →</span>
 </div>
@@ -541,24 +544,16 @@ body:hover #cursorGlow{opacity:1}
 <div class="setting-row"><span id="sRstA">🌅 高级</span><button class="danger" id="sRstABtn" onclick="resetTier('advanced')">重置</button></div>
 <div class="setting-row"><span id="sRstAll">⚠️ 全部</span><button class="danger" style="font-weight:700" id="sRstAllBtn" onclick="resetAll()">全部重置</button></div>
 </div>
-<div class="occ" id="sClose" onclick="closeSettings()">关闭</div>
-
+<button class="occ" id="sClose" onclick="closeSettings()">关闭</button>
 </div>
 
-<!-- BADGE OVERLAY -->
-<div class="ov" id="ovBadge" onclick="if(event.target===this)hideBadge()">
-<div class="op" style="text-align:center"><div class="oh"></div>
-<div style="font-size:56px;margin-bottom:8px" id="bIcon">🏆</div>
-<div style="font-size:17px;font-weight:600;margin-bottom:4px" id="bTitle"></div>
-<div style="font-size:13px;color:var(--text2)" id="bName"></div>
-<button class="occ" style="margin-top:12px" onclick="hideBadge()">✨ 太棒了！</button>
-</div></div>
-
-<!-- ===== MANUAL OVERLAY ===== -->
-<div class="ov" id="ovManual" onclick="if(event.target===this)closeManual()">
-<div class="op">
-<div class="oh"></div>
-<div class="settings-section">
+<!-- Manual Page (inside same overlay) -->
+<div id="manualPage" style="display:none">
+<div class="setting-row" style="cursor:pointer" onclick="showPage('settingsPage')">
+  <span style="font-size:13px;color:var(--tier);font-weight:600">← 返回</span>
+  <span style="font-size:12px;color:var(--text3)">设置</span>
+</div>
+<div class="settings-section" style="margin-top:8px">
 <div class="settings-label">📖 使用说明</div>
 <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
   <div style="font-size:13px;font-weight:600;color:var(--tier)">🧠 间隔重复</div>
@@ -585,10 +580,9 @@ body:hover #cursorGlow{opacity:1}
   <div style="font-size:12px;color:var(--text2);line-height:1.6">手机≤767px 卡片上下翻转；桌机≥768px 卡片与测验并排显示。</div>
 </div>
 </div>
-<div style="font-size:12px;color:var(--text3);text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--glass-border);line-height:1.5">
-© 2026 銘於心 (MING). 智慧物聯架構實驗室.
+<button class="occ" onclick="closeSettings()">关闭</button>
 </div>
-<button class="occ" onclick="closeManual()">关闭</button>
+
 </div></div>
 
 <script src="data/beginner.js"></script>
@@ -1127,16 +1121,13 @@ function shuffleLearn(){
   for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t}
   lCur=0;nextCard();sndClick()
 }
-function openManual(){$('ovManual').classList.add('act');sndClick()}
-function closeManual(){$('ovManual').classList.remove('act');sndClick()}
-
-// ===== SETTINGS =====
+function openManual(){$('ovSettings').classList.add('act');showPage('manualPage');sndClick()}
+function showPage(id){$('settingsPage').style.display=id==='settingsPage'?'block':'none';$('manualPage').style.display=id==='manualPage'?'block':'none';sndClick()}
 function openSettings(){
   $('ovSettings').classList.add('act');
   sndClick()
 }
 function closeSettings(){$('ovSettings').classList.remove('act');sndClick()}
-function showManualFromSettings(){$('ovSettings').classList.remove('act');$('ovManual').classList.add('act');sndClick()}
 function resetTier(tier){
   if(!confirm(tier==='beginner'?T('rRstB'):tier==='intermediate'?T('rRstI'):T('rRstA')))return;
   try{localStorage.removeItem('h_'+tier+'_done');localStorage.removeItem('h_'+tier+'_quiz');localStorage.removeItem('h_'+tier+'_badges');localStorage.removeItem('h_'+tier+'_review')}catch(e){}

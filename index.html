@@ -680,7 +680,7 @@ function ensureTierData(tier,cb){
 }
 
 // ===== AUDIO STORE (PWA) =====
-var IS_PWA = location.protocol === 'https:';
+var IS_PWA = !window.Capacitor && location.protocol === 'https:';
 var AUDIO_BASE = IS_PWA ? '/hkawnmai/audio/' : 'audio/';
 
 function playAudio(f){

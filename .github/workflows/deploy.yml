@@ -19,17 +19,22 @@ jobs:
 
       - name: Prepare assets
         run: |
-          mkdir -p build/data build/icons
+          mkdir -p build/data build/icons build/audio
           cp prototype.html build/index.html
           cp manifest.json build/
           cp service-worker.js build/
           cp icons/*.png build/icons/
           cp data/*.js build/data/
           cp data/*.json build/data/
-          cp data/*.zip build/data/
           if [ -d data/reference ]; then
             cp -r data/reference build/data/
           fi
+
+      - name: Extract audio from zips
+        run: |
+          for zip in data/*.zip; do
+            unzip -q "$zip" -d "build/audio/"
+          done
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

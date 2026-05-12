@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>HKAWN MAI 學中文</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVX28GYb/ZQ1C2Bq0e0ypGDRix3Gd0MutD3I9HMFJfkKh0CLdf8t6jD6hJmEVu+eI5H7S9mD9S2xTf7pcDOXw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 :root{--bg1:#F2E8E2;--bg2:#EBE0D8;--bg3:#E5DCD5;--text:#2C2A28;--text2:#8A8580;--text3:#A39E98;--glass:rgba(251,248,242,.82);--glass-border:rgba(255,255,255,.35);--shadow:rgba(0,0,0,.06);--card-bg:rgba(251,248,242,.85);--card-back:rgba(240,245,236,.88);--tier:#5B9F8F;--tier-glow:rgba(91,159,143,.12);--tier2:#5B9F8F}
 .dark{--bg1:#1E1822;--bg2:#14101A;--bg3:#1A1620;--text:#E8E3DC;--text2:#9A9590;--text3:#7A7570;--glass:rgba(40,34,48,.85);--glass-border:rgba(255,255,255,.06);--shadow:rgba(0,0,0,.3);--card-bg:rgba(50,44,55,.88);--card-back:rgba(48,52,48,.88);--tier:#5B9F8F;--tier-glow:rgba(180,120,200,.12);--tier2:#5B9F8F}
@@ -208,7 +208,7 @@ body:hover #cursorGlow{opacity:1}
 .cep{font-size:13px;color:var(--text3);margin:4px 0}
 .cem{font-size:14px;color:var(--text2);line-height:1.5}
 
-.ac{display:flex;gap:8px;margin-top:12px;margin-bottom:8px}
+.ac{display:flex;gap:8px;margin-top:12px;margin-bottom:8px;position:relative;z-index:2}
 .btn{flex:1;padding:14px;border:2px solid transparent;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
 .btn:active{transform:scale(.96)}
 .bf{background:rgba(232,221,213,.8);color:#B06060;border-color:#B06060}
@@ -441,6 +441,9 @@ body:hover #cursorGlow{opacity:1}
     <button class="btn bf" onclick="mark(0)">✕ <span id="lForgot">忘了</span></button>
     <button class="btn br" onclick="mark(1)">✓ <span id="lRemember">记得</span></button>
   </div>
+  <div id="audioDLBar" style="text-align:center;margin-bottom:6px;display:none">
+    <button id="audioDLBtn" onclick="startAudioDownload(currentTier)" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;transition:background .2s"></button>
+  </div>
   <div class="pr"><span id="lDone">0</span>/<span id="lTotal">0</span> · <span id="lRem">0</span> <button class="shuffle-btn" onclick="shuffleLearn()">🔀 <span id="shuffleLbl">随机</span></button></div>
 </div>
 <div class="learn-right" id="learnRight">
@@ -531,6 +534,10 @@ body:hover #cursorGlow{opacity:1}
 <div class="setting-row"><span id="sRstI">🌊 中级</span><button class="danger" id="sRstIBtn" onclick="resetTier('intermediate')">重置</button></div>
 <div class="setting-row"><span id="sRstA">🌅 高级</span><button class="danger" id="sRstABtn" onclick="resetTier('advanced')">重置</button></div>
 <div class="setting-row"><span id="sRstAll">⚠️ 全部</span><button class="danger" style="font-weight:700" id="sRstAllBtn" onclick="resetAll()">全部重置</button></div>
+</div>
+<div class="settings-section" id="audioSettingsSection">
+<div class="settings-label">🔊 音頻管理</div>
+<div class="setting-row"><span>音頻快取</span><button class="primary" id="sAudioClearBtn" onclick="clearAudioCache();this.textContent='已清除';setTimeout(function(){this.textContent='清除快取'}.bind(this),2000)">清除快取</button></div>
 </div>
 <button class="occ" id="sClose" onclick="closeSettings()">关闭</button>
 <div style="font-size:12px;color:var(--text3);text-align:center;margin-top:12px;line-height:1.5">
@@ -675,6 +682,7 @@ var IS_PWA = location.protocol === 'https:';
 var AUDIO_REPO = 'https://github.com/minglabtw/hkawnmai/releases/download/v0.2.1/';
 var audioDB = null;
 var audioTiers = {beginner:'audio-beginner.zip',intermediate:'audio-intermediate.zip',advanced:'audio-advanced.zip'};
+var audioDL = {}; // track download progress per tier {downloading:bool, pct:num}
 
 function openAudioDB(cb){
   if(audioDB){if(cb)cb();return}
@@ -692,43 +700,103 @@ function getAudioBlob(f,cb){
   req.onerror=function(){cb(null)};
 }
 
-function ensureAudio(tier,cb){
-  if(!IS_PWA){if(cb)cb();return}
-  var cached;
-  try{cached=JSON.parse(localStorage.getItem('h_audio_tiers')||'{}')}catch(e){cached={}}
-  if(cached[tier]){if(cb)cb();return}
-  showLoading('音頻下載中...',true);
-  var xhr=new XMLHttpRequest();
-  xhr.open('GET',AUDIO_REPO+audioTiers[tier],true);
-  xhr.responseType='blob';
-  xhr.onprogress=function(e){
-    if(e.total){
-      var p=Math.round(e.loaded/e.total*100);
-      $('loadingBar').style.width=p+'%';
-      $('loadingPct').textContent=p+'%';
+function isAudioCached(tier){
+  if(!IS_PWA)return true;
+  try{var c=JSON.parse(localStorage.getItem('h_audio_tiers')||'{}');return!!c[tier]}catch(e){return false}
+}
+
+function getAudioTierSize(tier){
+  return tier==='beginner'?'32MB':tier==='intermediate'?'85MB':'152MB';
+}
+
+function startAudioDownload(tier){
+  if(!IS_PWA||!audioDB)return;
+  if(audioDL[tier]&&audioDL[tier].downloading)return;
+  if(isAudioCached(tier))return;
+  audioDL[tier]={downloading:true,pct:0};
+  updateAudioUI(tier);
+  fetch(AUDIO_REPO+audioTiers[tier],{mode:'cors'}).then(function(r){
+    if(!r.ok){audioDL[tier]={downloading:false,pct:-1};updateAudioUI(tier);return}
+    var len=Number(r.headers.get('content-length'))||0;
+    var reader=r.body.getReader();
+    var chunks=[];
+    var loaded=0;
+    function readChunk(){
+      reader.read().then(function(result){
+        if(result.done){
+          var blob=new Blob(chunks);
+          JSZip.loadAsync(blob).then(function(zip){
+            var entries=[];
+            zip.forEach(function(path,file){
+              entries.push(file.async('blob').then(function(b){return{name:path,data:b}}));
+            });
+            Promise.all(entries).then(function(ents){
+              var tx=audioDB.transaction('audio','readwrite');
+              for(var i=0;i<ents.length;i++)tx.objectStore('audio').put(ents[i]);
+              tx.oncomplete=function(){
+                var cached;
+                try{cached=JSON.parse(localStorage.getItem('h_audio_tiers')||'{}')}catch(e){cached={}}
+                cached[tier]=true;
+                try{localStorage.setItem('h_audio_tiers',JSON.stringify(cached))}catch(e){}
+                audioDL[tier]={downloading:false,pct:100};
+                updateAudioUI(tier);
+              };
+            });
+          }).catch(function(){audioDL[tier]={downloading:false,pct:-1};updateAudioUI(tier)});
+          return;
+        }
+        chunks.push(result.value);
+        loaded+=result.value.length;
+        if(len>0){
+          var p=Math.round(loaded/len*100);
+          audioDL[tier]={downloading:true,pct:p};
+          updateAudioUI(tier);
+        }
+        readChunk();
+      }).catch(function(){audioDL[tier]={downloading:false,pct:-1};updateAudioUI(tier)});
     }
-  };
-  xhr.onload=function(){
-    if(xhr.status!==200){hideLoading();if(cb)cb();return}
-    JSZip.loadAsync(xhr.response).then(function(zip){
-      var entries=[],promises=[];
-      zip.forEach(function(path,file){
-        promises.push(file.async('blob').then(function(blob){entries.push({name:path,data:blob})}));
-      });
-      return Promise.all(promises).then(function(){
-        var tx=audioDB.transaction('audio','readwrite');
-        for(var i=0;i<entries.length;i++)tx.objectStore('audio').put(entries[i]);
-        tx.oncomplete=function(){
-          cached[tier]=true;
-          try{localStorage.setItem('h_audio_tiers',JSON.stringify(cached))}catch(e){}
-          hideLoading();
-          if(cb)cb()
-        };
-      });
-    }).catch(function(){hideLoading();if(cb)cb()});
-  };
-  xhr.onerror=function(){hideLoading();if(cb)cb()};
-  xhr.send();
+    readChunk();
+  }).catch(function(){audioDL[tier]={downloading:false,pct:-1};updateAudioUI(tier)});
+}
+
+function updateAudioUI(tier){
+  var bar=$('audioDLBar'),btn=$('audioDLBtn');
+  if(!bar||!btn)return;
+  if(!IS_PWA||isAudioCached(tier)){
+    bar.style.display='none';
+    return;
+  }
+  bar.style.display='block';
+  var s=audioDL[tier];
+  if(s&&s.downloading){
+    btn.textContent='⬇ 下載中 '+s.pct+'%';
+    btn.style.background='var(--text3)';
+    btn.style.cursor='default';
+    btn.disabled=true;
+  }else if(s&&s.pct===-1){
+    btn.textContent='⚠ 下載失敗，重試';
+    btn.style.background='rgba(232,221,213,.8)';
+    btn.style.color='#B06060';
+    btn.style.cursor='pointer';
+    btn.disabled=false;
+  }else{
+    btn.textContent='⬇ 下載音頻 ('+getAudioTierSize(tier)+')';
+    btn.style.background='var(--tier)';
+    btn.style.color='#fff';
+    btn.style.cursor='pointer';
+    btn.disabled=false;
+  }
+}
+
+function clearAudioCache(){
+  if(!IS_PWA)return;
+  if(audioDB){
+    var tx=audioDB.transaction('audio','readwrite');
+    tx.objectStore('audio').clear();
+  }
+  try{localStorage.removeItem('h_audio_tiers')}catch(e){}
+  for(var k in audioTiers){audioDL[k]={downloading:false,pct:0}}
+  updateAudioUI(currentTier);
 }
 
 function playAudio(f){
@@ -737,7 +805,11 @@ function playAudio(f){
     new Audio('audio/'+f).play().catch(function(){});
   }else{
     getAudioBlob(f,function(blob){
-      if(blob)new Audio(URL.createObjectURL(blob)).play().catch(function(){});
+      if(blob){
+        new Audio(URL.createObjectURL(blob)).play().catch(function(){});
+      }else if(!audioDL[currentTier]||!audioDL[currentTier].downloading){
+        startAudioDownload(currentTier);
+      }
     });
   }
 }
@@ -791,9 +863,9 @@ function switchTier(tier){
     loadTierData(tier);
     $('appHeader').style.display='block';activateTab(0);
     scr('scrLearn');
-    applyLang();sndClick()
+    applyLang();sndClick();
+    openAudioDB(function(){updateAudioUI(tier)})
   });
-  openAudioDB(function(){ensureAudio(tier)});
 }
 
 function continueLearning(){
@@ -802,7 +874,7 @@ function continueLearning(){
     $('appHeader').style.display='block';activateTab(0);
     scr('scrLearn');
     applyLang();sndClick();
-    openAudioDB(function(){ensureAudio(currentTier)})
+    openAudioDB(function(){updateAudioUI(currentTier)})
   });
 }
 
@@ -1121,7 +1193,12 @@ function openManual(){$('ovManual').classList.add('act');sndClick()}
 function closeManual(){$('ovManual').classList.remove('act');sndClick()}
 
 // ===== SETTINGS =====
-function openSettings(){$('ovSettings').classList.add('act');sndClick()}
+function openSettings(){
+  $('ovSettings').classList.add('act');
+  var sec=$('audioSettingsSection');
+  if(sec)sec.style.display=IS_PWA?'block':'none';
+  sndClick()
+}
 function closeSettings(){$('ovSettings').classList.remove('act');sndClick()}
 function resetTier(tier){
   if(!confirm(tier==='beginner'?T('rRstB'):tier==='intermediate'?T('rRstI'):T('rRstA')))return;
@@ -1220,7 +1297,7 @@ loadQuizStats();
  updateHomeRings();
  showDailySentence();startDailyRotation();showTodayLearn();showHomeStats();
  scr('scrHome');
-openAudioDB(function(){ensureAudio('beginner')});
+openAudioDB(function(){updateAudioUI('beginner')});
 $('appHeader').style.display='none';
 $('filterBar').style.display='none';
 // PWA Service Worker

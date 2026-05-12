@@ -1,4 +1,4 @@
-# HKAWN MAI 學中文
+# HKAWN MAI 学中文
 
 > 緬甸語—中文對照 HSK 學習工具
 >

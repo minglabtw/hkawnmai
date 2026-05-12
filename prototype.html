@@ -358,6 +358,7 @@ body:hover #cursorGlow{opacity:1}
     </div>
   </div>
   <div class="home-streak">🔥 <b id="hStreak">0</b> <span id="streakL">天连续学习</span></div>
+  <div class="home-streak" id="hDueRow" style="margin-top:-10px"><span id="hDueMy">📚 待复习 0</span></div>
   <div class="home-grid">
     <div class="home-card" onclick="switchTier('beginner')">
       <div class="home-ring"><svg width="64" height="64" viewBox="0 0 64 64"><circle class="bg" cx="32" cy="32" r="25"/><circle class="fg" id="ringB" cx="32" cy="32" r="25" style="stroke:#5B9F8F"/></svg><div class="home-pct" id="pctB">0%</div></div>
@@ -586,7 +587,7 @@ body:hover #cursorGlow{opacity:1}
 var tiers={beginner:{name:'初级',color:'#5B9F8F',cl:'tier-b',data:typeof VOCAB_BEGINNER!=='undefined'?VOCAB_BEGINNER:[],hsks:'HSK 1-3'},
   intermediate:{name:'中级',color:'#6B8FAF',cl:'tier-i',data:typeof VOCAB_INTERMEDIATE!=='undefined'?VOCAB_INTERMEDIATE:[],hsks:'HSK 4-5'},
   advanced:{name:'高级',color:'#9A7FAF',cl:'tier-a',data:typeof VOCAB_ADVANCED!=='undefined'?VOCAB_ADVANCED:[],hsks:'HSK 6'}};
-var currentTier='beginner',words=[],order=[],lCur=0,done=[],lRem=0,lForg=0;
+var currentTier='beginner',words=[],order=[],lCur=0,done=[],lRem=0,lForg=0,reviewData={};
 var qCount=10,qItems=[],qCur=0,qCorr=0,qPart=0,qStage='word',qAnswered=false;
 var qAttempts=0,qPerfect10=0,qPerfect50=0,qTotalWords=0,riAnswered=false;
 var curLang='zh';
@@ -621,6 +622,17 @@ function $(s){return document.getElementById(s)}
 function scr(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('act')});$(id).classList.add('act')}
 function T(k){return lang[curLang][k]||k}
 function tn(n){return tiers[currentTier].name}
+
+// ===== REVIEW SYSTEM (Spaced Repetition) =====
+var BOX_INTERVALS=[0,60000,600000,3600000,86400000,259200000,604800000,2592000000]; // 0~7
+var MAX_NEW_DAILY=10;
+function getReviewKey(tier){return 'h_'+tier+'_review'}
+function loadReviewData(tier){
+  try{var d=localStorage.getItem(getReviewKey(tier));reviewData=d?JSON.parse(d):{}}catch(e){reviewData={}}
+}
+function saveReviewData(tier){
+  try{localStorage.setItem(getReviewKey(tier),JSON.stringify(reviewData))}catch(e){}
+}
 
 function loadLang(){try{var l=localStorage.getItem('h_lang');if(l)curLang=l}catch(e){}}
 function toggleLang(){curLang=curLang==='zh'?'my':'zh';try{localStorage.setItem('h_lang',curLang)}catch(e){};applyLang();sndClick()}
@@ -685,6 +697,7 @@ function loadTierData(tier){
   $('sPct').style.color=tiers[tier].color;
   words=tiers[tier].data||[];
   loadProgress();
+  loadReviewData(tier);
   lRem=done.filter(function(x){return x[1]}).length;
   lForg=done.filter(function(x){return !x[1]}).length;
   hskFilter=0;
@@ -772,6 +785,15 @@ function updateHomeRings(){
     totalDone+=d?d.length:0;
   }
   $('hStreak').textContent=totalDone>100?Math.floor(totalDone/30):0;
+  // Show pending review count
+  var dueCount=0;var now=Date.now();
+  for(var k in tiers){
+    try{var d=JSON.parse(localStorage.getItem('h_'+k+'_review')||'{}');for(var i in d){if(d[i].due<=now&&d[i].box<7)dueCount++}}catch(e){}
+  }
+  var dueEl=$('hDue');
+  if(dueEl)dueEl.textContent=dueCount;
+  var dueElMy=$('hDueMy');
+  if(dueElMy)dueElMy.textContent='📚 待复'+dueCount;
 }
 
 // ===== HOME: 每日一句, 今日学习, 統計 =====
@@ -856,9 +878,29 @@ function loadTierBadges(tier){
 
 function buildOrder(){
   order=[];
+  var now=Date.now(),dueWords=[],dueForgotten=[],newWords=[];
   for(var i=0;i<words.length;i++){
     if(hskFilter>0&&words[i].l!==hskFilter)continue;
-    if(!done.find(function(x){return x[0]===i})) order.push(i);
+    var r=reviewData[i];
+    if(!r){
+      newWords.push(i);
+    }else if(r.due<=now&&r.box<7){
+      if(r.box===0)dueForgotten.push(i);
+      else dueWords.push(i);
+    }
+  }
+  // Sort: most overdue first, forgotten before due
+  dueForgotten.sort(function(a,b){return (reviewData[a].due||0)-(reviewData[b].due||0)});
+  dueWords.sort(function(a,b){return (reviewData[a].due||0)-(reviewData[b].due||0)});
+  dueWords=dueForgotten.concat(dueWords);
+  // Limit new words per day
+  var newLimit=Math.max(0,MAX_NEW_DAILY-dueWords.length);
+  if(newWords.length>newLimit)newWords=newWords.slice(0,newLimit);
+  // Build order: due first, then new, then high-box (for review)
+  order=dueWords.concat(newWords);
+  // Save today's new word count
+  if(newWords.length>0){
+    try{localStorage.setItem('h_'+currentTier+'_new_day',newWords.length+'_'+Math.floor(now/86400000))}catch(e){}
   }
 }
 
@@ -890,13 +932,31 @@ function nextCard(){
   $('sDays').textContent=done.length>50?Math.floor(done.length/20):0;
   $('sPct').textContent=done.length>0?Math.round(lRem/done.length*100)+'%':'0%';
   showFront();
+  // Show review level
+  var r=reviewData[order[lCur]];
+  $('lHint').textContent=r&&r.box>0?T('lHint')+' (⭐'+(r.box+1)+')':T('lHint');
   renderRightPanel(w);
 }
 
 function mark(v){
-  if(v)lRem++;else lForg++;
-  done.push([order[lCur],v]);
+  var idx=order[lCur];
+  // Save to done for stats/backwards compat
+  done.push([idx,v]);
   saveProgress();
+  // Update review data
+  var r=reviewData[idx]||{box:0,due:0};
+  if(v){
+    // Remembered: upgrade box
+    r.box=Math.min(r.box+1,7);
+  }else{
+    // Forgotten: reset to box 0
+    r.box=0;
+  }
+  r.due=Date.now()+BOX_INTERVALS[r.box];
+  reviewData[idx]=r;
+  saveReviewData(currentTier);
+  // Move to next card
+  if(v)lRem++;else lForg++;
   lCur++;sndClick();nextCard();
 }
 
@@ -944,10 +1004,21 @@ function showQuizSetup(){$('appHeader').style.display='block';$('filterBar').sty
 
 function startQuiz(){
   qItems=[];qCur=0;qCorr=0;qStage='word';qAnswered=false;
-  var pool=[];for(var i=0;i<words.length;i++)pool.push(i);
+  var now=Date.now();
+  var due=[],rest=[];
+  for(var i=0;i<words.length;i++){
+    var r=reviewData[i];
+    if(r&&r.due<=now&&r.box<7)due.push(i);
+    else rest.push(i);
+  }
+  // Include due words + fill rest with random
+  var pool=due;
+  for(var i=rest.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=rest[i];rest[i]=rest[j];rest[j]=t}
+  var n=Math.min(qCount-pool.length,rest.length);
+  for(var i=0;i<n;i++)pool.push(rest[i]);
   for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t}
-  var n=Math.min(qCount,pool.length);
-  for(var i=0;i<n;i++){
+  var total=Math.min(qCount,pool.length);
+  for(var i=0;i<total;i++){
     var correct=pool[i],wopts=pickOpts(correct,'m'),sopts=pickOpts(correct,'em');
     qItems.push({wordIdx:correct,wordOpts:wopts,sentOpts:sopts,selWord:-1,selSent:-1,wordOk:false,sentOk:false});
   }
@@ -1061,23 +1132,27 @@ function openSettings(){
 function closeSettings(){$('ovSettings').classList.remove('act');sndClick()}
 function resetTier(tier){
   if(!confirm(tier==='beginner'?T('rRstB'):tier==='intermediate'?T('rRstI'):T('rRstA')))return;
-  try{localStorage.removeItem('h_'+tier+'_done');localStorage.removeItem('h_'+tier+'_quiz');localStorage.removeItem('h_'+tier+'_badges')}catch(e){}
+  try{localStorage.removeItem('h_'+tier+'_done');localStorage.removeItem('h_'+tier+'_quiz');localStorage.removeItem('h_'+tier+'_badges');localStorage.removeItem('h_'+tier+'_review')}catch(e){}
+  reviewData={};
   if(tier===currentTier){loadProgress();lRem=done.filter(function(x){return x[1]}).length;lForg=done.filter(function(x){return !x[1]}).length;buildOrder();lCur=0;nextCard()}
   updateHomeRings();sndClick()
 }
 function resetAll(){
   if(!confirm(T('rRstAll1')))return;
   if(!confirm(T('rRstAll2')))return;
-  for(var k in tiers){try{localStorage.removeItem('h_'+k+'_done');localStorage.removeItem('h_'+k+'_quiz');localStorage.removeItem('h_'+k+'_badges')}catch(e){}}
+  for(var k in tiers){try{localStorage.removeItem('h_'+k+'_done');localStorage.removeItem('h_'+k+'_quiz');localStorage.removeItem('h_'+k+'_badges');localStorage.removeItem('h_'+k+'_review')}catch(e){}}
+  reviewData={};
   loadProgress();lRem=0;lForg=0;buildOrder();lCur=0;nextCard();
   updateHomeRings();sndClick()
 }
 
 function exportData(){
-  var data={version:'2.0',date:new Date().toISOString(),tiers:{}};
+  var data={version:'3.0',date:new Date().toISOString(),tiers:{}};
   for(var k in tiers){
     var done=loadTierProgress(k),quiz=loadTierQuiz(k),badges=loadTierBadges(k);
-    data.tiers[k]={done:done,quiz:quiz,badges:badges,count:tiers[k].data.length};
+    var review;
+    try{review=JSON.parse(localStorage.getItem('h_'+k+'_review')||'{}')}catch(e){review={}}
+    data.tiers[k]={done:done,quiz:quiz,badges:badges,review:review,count:tiers[k].data.length};
   }
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hkawn_mai_backup.json';a.click();sndClick()
@@ -1090,10 +1165,13 @@ function importData(e){
     try{
       var data=JSON.parse(ev.target.result);
       if(!data.version||!data.tiers){alert('無效的備份檔案');return}
+      // Migrate v2 (no review) to v3
+      if(data.version==='2.0'){for(var k in data.tiers){if(!data.tiers[k].review)data.tiers[k].review={}}}
       for(var k in data.tiers){
         if(data.tiers[k].done)try{localStorage.setItem('h_'+k+'_done',JSON.stringify(data.tiers[k].done))}catch(e){}
         if(data.tiers[k].quiz)try{localStorage.setItem('h_'+k+'_quiz',JSON.stringify(data.tiers[k].quiz))}catch(e){}
         if(data.tiers[k].badges)try{localStorage.setItem('h_'+k+'_badges',JSON.stringify(data.tiers[k].badges))}catch(e){}
+        if(data.tiers[k].review)try{localStorage.setItem('h_'+k+'_review',JSON.stringify(data.tiers[k].review))}catch(e){}
       }
       alert('✅ 进度已成功导入！');
       updateHomeRings();sndClick()

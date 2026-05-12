@@ -550,37 +550,37 @@ body:hover #cursorGlow{opacity:1}
 <!-- Manual Page (inside same overlay) -->
 <div id="manualPage" style="display:none">
 <div class="setting-row" style="cursor:pointer" onclick="showPage('settingsPage')">
-  <span style="font-size:13px;color:var(--tier);font-weight:600">← 返回</span>
-  <span style="font-size:12px;color:var(--text3)">设置</span>
+  <span style="font-size:13px;color:var(--tier);font-weight:600"><span id="manualBack">← 返回</span></span>
+  <span style="font-size:12px;color:var(--text3)" id="manualReturn">设置</span>
 </div>
 <div class="settings-section" style="margin-top:8px">
-<div class="settings-label">📖 使用说明</div>
+<div class="settings-label" id="manualTitle">📖 使用说明</div>
 <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
-  <div style="font-size:13px;font-weight:600;color:var(--tier)">🧠 间隔重复</div>
-  <div style="font-size:12px;color:var(--text2);line-height:1.6">每个单词有 0~7 级，忘了立刻重来、记得间隔拉长，真正记牢才不再出现。</div>
-</div>
-<div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
-  <div style="font-size:13px;font-weight:600;color:var(--tier)">🎴 学习</div>
-  <div style="font-size:12px;color:var(--text2);line-height:1.6">翻转卡片学习中文词汇。看中文→想缅文，翻卡确认。右侧有选择题小测验加强记忆。</div>
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualReview">🧠 间隔重复</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualReviewDesc">每个单词有 0~7 级，忘了立刻重来、记得间隔拉长，真正记牢才不再出现。</div>
 </div>
 <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
-  <div style="font-size:13px;font-weight:600;color:var(--tier)">📝 测验</div>
-  <div style="font-size:12px;color:var(--text2);line-height:1.6">两阶段测验：先选择正确缅甸语翻译(2分)，再选择正确例句缅甸语翻译(1分)。每题最高3分。优先纳入待复习单词。</div>
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualLearn">🎴 学习</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualLearnDesc">翻转卡片学习中文词汇。看中文→想缅文，翻卡确认。右侧有选择题小测验加强记忆。</div>
 </div>
 <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
-  <div style="font-size:13px;font-weight:600;color:var(--tier)">🔀 随机</div>
-  <div style="font-size:12px;color:var(--text2);line-height:1.6">学习时可按 🔀 重新排序卡片。测验前可按 🔀 重新随机出题。</div>
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualQuiz">📝 测验</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualQuizDesc">两阶段测验：先选择正确缅甸语翻译(2分)，再选择正确例句缅甸语翻译(1分)。每题最高3分。优先纳入待复习单词。</div>
 </div>
 <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
-  <div style="font-size:13px;font-weight:600;color:var(--tier)">⚙️ 设置</div>
-  <div style="font-size:12px;color:var(--text2);line-height:1.6">切换语言(中文/缅甸语)、深色模式、导出/导入/重置学习进度。</div>
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualShuffle">🔀 随机</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualShuffleDesc">学习时可按 🔀 重新排序卡片。测验前可按 🔀 重新随机出题。</div>
 </div>
 <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
-  <div style="font-size:13px;font-weight:600;color:var(--tier)">🌐 双页切分</div>
-  <div style="font-size:12px;color:var(--text2);line-height:1.6">手机≤767px 卡片上下翻转；桌机≥768px 卡片与测验并排显示。</div>
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualSettings">⚙️ 设置</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualSettingsDesc">切换语言(中文/缅甸语)、深色模式、导出/导入/重置学习进度。</div>
+</div>
+<div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualDual">🌐 双页切分</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualDualDesc">手机≤767px 卡片上下翻转；桌机≥768px 卡片与测验并排显示。</div>
 </div>
 </div>
-<button class="occ" onclick="closeSettings()">关闭</button>
+<button class="occ" id="manualClose" onclick="closeSettings()">关闭</button>
 </div>
 
 </div></div>
@@ -607,7 +607,7 @@ var lang={zh:{hTitle:'← 返回',streakL:'天连续学习',tLearn:'📖 学习'
   qSentHint:'💡 例句提示',
   rRstB:'确定重置初级的全部进度？',rRstI:'确定重置中级的全部进度？',rRstA:'确定重置高级的全部进度？',
   rRstAll1:'确定重置全部进度？（此操作无法复原）',rRstAll2:'再次确认：清除所有初级+中级+高级的学习记录？',
-  fAll:'全部',fHsk1:'HSK 1',fHsk2:'HSK 2',fHsk3:'HSK 3',fHsk4:'HSK 4',  fHsk5:'HSK 5',fHsk6:'HSK 6',manualBtn:'📖 使用手册',manualTitle:'📖 使用手册',manualLearn:'🎴 学习',manualLearnDesc:'翻转卡片学习中文词汇。看中文→想缅文，翻卡确认。右侧有选择题小测验加强记忆。',manualQuiz:'📝 测验',manualQuizDesc:'两阶段测验：先选择正确缅甸语翻译打2分，再选择正确例句缅甸语翻译打1分。每题最高3分。',manualShuffle:'🔀 随机',manualShuffleDesc:'学习时可随时按 🔀 洗牌按钮重新随机排序卡片。测验前可按 🔀 重新随机出题。',manualSettings:'⚙️ 设置',manualSettingsDesc:'可切换界面语言（简体中文/缅甸语）、切换深色模式、导出/导入/重置学习进度数据。',manualBadges:'🏅 徽章',manualBadgesDesc:'完成测验可解锁徽章：初试啼声（首次测验）、满分新手（10题满分）、完美达人（50题满分）、百词斩（累计学习100词）。',manualClose:'关闭',shuffleLbl:'随机',qsShuffleLbl:'随机',dailySentence:'💡 每日一句',todayLearn:'📚 今日学习',statQuiz:'📝 测验数',statScore:'⭐ 最高分',statWords:'🔤 已学词',noLearnYet:'还没有学习记录，开始吧！',remembered:'已记住',forgotten:'需复习'},
+  fAll:'全部',fHsk1:'HSK 1',fHsk2:'HSK 2',fHsk3:'HSK 3',fHsk4:'HSK 4',  fHsk5:'HSK 5',fHsk6:'HSK 6',manualBtn:'📖 使用手册',manualReturn:'设置',manualTitle:'📖 使用说明',manualReview:'🧠 间隔重复',manualReviewDesc:'每个单词有 0~7 级，忘了立刻重来、记得间隔拉长，真正记牢才不再出现。',manualLearn:'🎴 学习',manualLearnDesc:'翻转卡片学习中文词汇。看中文→想缅文，翻卡确认。右侧有选择题小测验加强记忆。',manualQuiz:'📝 测验',manualQuizDesc:'两阶段测验：先选择正确缅甸语翻译(2分)，再选择正确例句缅甸语翻译(1分)。每题最高3分。优先纳入待复习单词。',manualShuffle:'🔀 随机',manualShuffleDesc:'学习时可按 🔀 重新排序卡片。测验前可按 🔀 重新随机出题。',manualSettings:'⚙️ 设置',manualSettingsDesc:'切换语言(中文/缅甸语)、深色模式、导出/导入/重置学习进度。',manualBadges:'🏅 徽章',manualBadgesDesc:'完成测验可解锁徽章：初试啼声（首次测验）、满分新手（10题满分）、完美达人（50题满分）、百词斩（累计学习100词）。',manualDual:'🌐 双页切分',manualDualDesc:'手机≤767px 卡片上下翻转；桌机≥768px 卡片与测验并排显示。',manualClose:'关闭',shuffleLbl:'随机',qsShuffleLbl:'随机',dailySentence:'💡 每日一句',todayLearn:'📚 今日学习',statQuiz:'📝 测验数',statScore:'⭐ 最高分',statWords:'🔤 已学词',noLearnYet:'还没有学习记录，开始吧！',remembered:'已记住',forgotten:'需复习'},
   my:{hTitle:'← ပြန်',streakL:'ရက်ဆက်တိုး',tLearn:'📖 သင်ယူ',tQuiz:'📝 စာမေးပွဲ',lHint:'ကတ်ကိုနှိပ်ပါ',lForgot:'မေ့',lRemember:'မှတ်မိ',
   qsTitle:'📝 စာမေးပွဲ',qsSub:'အရေအတွက်ရွေးပါ',qQuit:'ထွက်',rCorrL:'မှန်',rWronL:'မှား',rRetryL:'ထပ်စမ်း',rBackL:'ပြန်',
   rErrTitle:'❌ မှားသောအဖြေများ',qs10:'၁၀',qs20:'၂၀',qs50:'၅၀',qsStart:'စတင်',
@@ -620,7 +620,7 @@ var lang={zh:{hTitle:'← 返回',streakL:'天连续学习',tLearn:'📖 学习'
   qSentHint:'💡 ဝါကျအရိပ်အမြွက်',
   rRstB:'အခြေခံတစ်ခုလုံးကိုပြန်သတ်မလား？',rRstI:'အလယ်တစ်ခုလုံးကိုပြန်သတ်မလား？',rRstA:'မြင့်တစ်ခုလုံးကိုပြန်သတ်မလား？',
   rRstAll1:'တစ်ခုလုံးကိုပြန်သတ်မလား？（ပြန်မရနိုင်）',rRstAll2:'ထပ်အတည်ပြု：အားလုံးကိုရှင်းမလား？',
-  fAll:'အားလုံး',fHsk1:'HSK ၁',fHsk2:'HSK ၂',fHsk3:'HSK ၃',fHsk4:'HSK ၄',  fHsk5:'HSK ၅',fHsk6:'HSK ၆',manualBtn:'📖 အသုံးပြုလွှာ',manualTitle:'📖 အသုံးပြုလွှာ',manualLearn:'🎴 သင်ယူ',manualLearnDesc:'ကတ်လှန်ပြီး တရုတ်စကားလုံးများကို သင်ယူပါ။ တရုတ်လိုကြည့်→မြန်မာလိုစဉ်းစား၊ ကတ်လှန်ပြီးစစ်ဆေးပါ။ ညာဘက်တွင် ရွေးချယ်စရာမေးခွန်းများပါရှိသည်။',manualQuiz:'📝 စာမေးပွဲ',manualQuizDesc:'အဆင့်နှစ်ဆင့်စာမေးပွဲ- မှန်သောမြန်မာဘာသာပြန်ကိုရွေးပါ(၂မှတ်)၊ ထို့နောက် မှန်သောဝါကျမြန်မာပြန်ကိုရွေးပါ(၁မှတ်)။ တစ်ပုစ္ဆာအများဆုံး ၃မှတ်။',manualShuffle:'🔀 ကျပန်',manualShuffleDesc:'သင်ယူနေစဉ် 🔀 ခလုတ်ကိုနှိပ်ပြီး ကတ်များကိုပြန်လှန်နိုင်သည်။ စာမေးပွဲမစမီ 🔀 ဖြင့်ပြန်လှန်နိုင်သည်။',manualSettings:'⚙️ သတ်မှတ်',manualSettingsDesc:'ဘာသာစကားပြောင်းရန် (မြန်မာ/တရုတ်)၊ အမှောင်မုဒ်ပြောင်းရန်၊ ဒေတာထုတ်ယူ/တင်သွင်း/ပြန်သတ်ရန်။',manualBadges:'🏅 တံဆိပ်',manualBadgesDesc:'စာမေးပွဲပြီးပါက တံဆိပ်များရရှိနိုင်သည်- ပထမဆုံး(ပထမဆုံးစာမေးပွဲ)၊ အမှတ်ပြည့်(၁၀ပုစ္ဆာအမှတ်ပြည့်)၊ ပြီးပြည့်စုံ(၅၀ပုစ္ဆာအမှတ်ပြည့်)၊ စကားလုံး၁၀၀(စုစုပေါင်းစကားလုံး၁၀၀သင်ယူပြီး)။',manualClose:'ပိတ်',shuffleLbl:'ကျပန်',qsShuffleLbl:'ကျပန်',dailySentence:'💡 နေ့စဉ်ဝါကျ',todayLearn:'📚 ယနေ့သင်ယူ',statQuiz:'📝 စာမေးပွဲ',statScore:'⭐ အမြင့်ဆုံး',statWords:'🔤 သင်ယူပြီး',noLearnYet:'သင်ယူမှတ်တမ်းမရှိသေးပါ။',remembered:'မှတ်မိ',forgotten:'ပြန်လေ့လာရန်'}};
+  fAll:'အားလုံး',fHsk1:'HSK ၁',fHsk2:'HSK ၂',fHsk3:'HSK ၃',fHsk4:'HSK ၄',  fHsk5:'HSK ၅',fHsk6:'HSK ၆',manualBtn:'📖 အသုံးပြုလွှာ',manualReturn:'သတ်မှတ်',manualTitle:'📖 အသုံးပြုလွှာ',manualReview:'🧠 ကြားကာလထပ်ကျော့',manualReviewDesc:'စကားလုံးတိုင်းမှာ အဆင့် ၀-ရှိပြီး မေ့ရင် ချက်ချင်းပြန်၊ မှတ်မိရင် ကြားကာလရှည်လာမယ်။',manualLearn:'🎴 သင်ယူ',manualLearnDesc:'ကတ်လှန်ပြီး တရုတ်စကားလုံးများကို သင်ယူပါ။ တရုတ်လိုကြည့်→မြန်မာလိုစဉ်းစား၊ ကတ်လှန်ပြီးစစ်ဆေးပါ။',manualQuiz:'📝 စာမေးပွဲ',manualQuizDesc:'အဆင့်နှစ်ဆင့်စာမေးပွဲ- မှန်သောမြန်မာဘာသာပြန်ကိုရွေးပါ(၂မှတ်)၊ ထို့နောက် မှန်သောဝါကျမြန်မာပြန်ကိုရွေးပါ(၁မှတ်)။',manualShuffle:'🔀 ကျပန်',manualShuffleDesc:'သင်ယူနေစဉ် 🔀 ခလုတ်ကိုနှိပ်ပြီး ကတ်များကိုပြန်လှန်နိုင်သည်။',manualSettings:'⚙️ သတ်မှတ်',manualSettingsDesc:'ဘာသာစကားပြောင်းရန် (မြန်မာ/တရုတ်)၊ အမှောင်မုဒ်ပြောင်းရန်၊ ဒေတာထုတ်ယူ/တင်သွင်း/ပြန်သတ်ရန်။',manualBadges:'🏅 တံဆိပ်',manualBadgesDesc:'စာမေးပွဲပြီးပါက တံဆိပ်များရရှိနိုင်သည်။',manualDual:'🌐 စာမျက်နှာခွဲ',manualDualDesc:'ဖုန်း≤767px တွင် ကတ်အပေါ်အောက်လှန်ပြီး ကွန်ပျူတာ≥768px တွင် ကတ်နှင့်စာမေးပွဲကို ဘေးချင်းယှဉ်ပြသည်။',manualClose:'ပိတ်',shuffleLbl:'ကျပန်',qsShuffleLbl:'ကျပန်',dailySentence:'💡 နေ့စဉ်ဝါကျ',todayLearn:'📚 ယနေ့သင်ယူ',statQuiz:'📝 စာမေးပွဲ',statScore:'⭐ အမြင့်ဆုံး',statWords:'🔤 သင်ယူပြီး',noLearnYet:'သင်ယူမှတ်တမ်းမရှိသေးပါ။',remembered:'မှတ်မိ',forgotten:'ပြန်လေ့လာရန်'}};
 
 function $(s){return document.getElementById(s)}
 function scr(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('act')});$(id).classList.add('act')}
@@ -1121,7 +1121,7 @@ function shuffleLearn(){
   for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t}
   lCur=0;nextCard();sndClick()
 }
-function openManual(){$('ovSettings').classList.add('act');showPage('manualPage');sndClick()}
+function openManual(){$('ovSettings').classList.add('act');showPage('manualPage');var mb=$('manualBack');if(mb)mb.textContent=T('hTitle');sndClick()}
 function showPage(id){$('settingsPage').style.display=id==='settingsPage'?'block':'none';$('manualPage').style.display=id==='manualPage'?'block':'none';sndClick()}
 function openSettings(){
   $('ovSettings').classList.add('act');

@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#5B9F8F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="HKAWN MAI">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>HKAWN MAI 學中文</title>
+<style>
+:root{--bg1:#F2E8E2;--bg2:#EBE0D8;--bg3:#E5DCD5;--text:#2C2A28;--text2:#8A8580;--text3:#A39E98;--glass:rgba(251,248,242,.82);--glass-border:rgba(255,255,255,.35);--shadow:rgba(0,0,0,.06);--card-bg:rgba(251,248,242,.85);--card-back:rgba(240,245,236,.88);--tier:#5B9F8F;--tier-glow:rgba(91,159,143,.12);--tier2:#5B9F8F}
+.dark{--bg1:#1E1822;--bg2:#14101A;--bg3:#1A1620;--text:#E8E3DC;--text2:#9A9590;--text3:#7A7570;--glass:rgba(40,34,48,.85);--glass-border:rgba(255,255,255,.06);--shadow:rgba(0,0,0,.3);--card-bg:rgba(50,44,55,.88);--card-back:rgba(48,52,48,.88);--tier:#5B9F8F;--tier-glow:rgba(180,120,200,.12);--tier2:#5B9F8F}
+.tier-b{--tier:#5B9F8F;--tier2:#5B9F8F;--tier-glow:rgba(91,159,143,.12)}
+.tier-i{--tier:#6B8FAF;--tier2:#6B8FAF;--tier-glow:rgba(107,143,175,.12)}
+.tier-a{--tier:#9A7FAF;--tier2:#9A7FAF;--tier-glow:rgba(154,127,175,.12)}
+.dark.tier-b{--tier-glow:rgba(91,159,143,.15)}
+.dark.tier-i{--tier-glow:rgba(107,143,175,.15)}
+.dark.tier-a{--tier-glow:rgba(154,127,175,.15)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Noto Sans SC','Noto Sans Myanmar',sans-serif;background:linear-gradient(135deg,var(--bg1) 0%,var(--bg2) 40%,var(--bg3) 100%);color:var(--text);min-height:100vh;transition:background .8s}
+#app{max-width:420px;margin:0 auto;padding:16px;min-height:100vh;position:relative;z-index:1}
+#bgAtmo{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;background:
+  radial-gradient(ellipse at 15% 20%,rgba(212,167,106,.15) 0%,transparent 45%),
+  radial-gradient(ellipse at 78% 25%,rgba(200,150,140,.12) 0%,transparent 40%),
+  radial-gradient(ellipse at 82% 72%,rgba(180,140,150,.1) 0%,transparent 45%),
+  radial-gradient(ellipse at 25% 75%,rgba(212,167,106,.1) 0%,transparent 50%),
+  radial-gradient(ellipse at 55% 50%,rgba(200,170,150,.08) 0%,transparent 55%),
+  radial-gradient(ellipse at 5% 50%,rgba(212,167,106,.12) 0%,transparent 40%),
+  radial-gradient(ellipse at 65% 90%,rgba(200,150,140,.08) 0%,transparent 50%);transition:background .8s}
+.dark #bgAtmo{background:
+  radial-gradient(ellipse at 20% 15%,rgba(160,100,200,.12) 0%,transparent 45%),
+  radial-gradient(ellipse at 80% 25%,rgba(100,80,180,.1) 0%,transparent 40%),
+  radial-gradient(ellipse at 70% 78%,rgba(80,100,180,.08) 0%,transparent 45%),
+  radial-gradient(ellipse at 30% 72%,rgba(140,90,160,.1) 0%,transparent 50%),
+  radial-gradient(ellipse at 50% 50%,rgba(120,90,150,.08) 0%,transparent 55%),
+  radial-gradient(ellipse at 88% 55%,rgba(100,80,160,.1) 0%,transparent 40%),
+  radial-gradient(ellipse at 42% 92%,rgba(150,100,160,.08) 0%,transparent 50%),
+  radial-gradient(ellipse at 65% 10%,rgba(180,120,200,.08) 0%,transparent 45%)}
+#cursorGlow{position:fixed;top:0;left:0;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,var(--tier-glow) 0%,var(--tier-glow) 30%,transparent 65%);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);opacity:0;transition:opacity .5s;will-change:transform}
+body:hover #cursorGlow{opacity:1}
+.dark #cursorGlow{background:radial-gradient(circle,rgba(180,120,200,.15) 0%,rgba(100,80,160,.08) 30%,transparent 65%)}
+#orbContainer{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;pointer-events:none;will-change:transform}
+.dark #starField{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.dark #starField::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.02) 0%,transparent 50%),radial-gradient(ellipse at 60% 30%,rgba(255,255,255,.015) 0%,transparent 40%);pointer-events:none}
+.dark .star{position:absolute;border-radius:50%;background:rgba(255,255,255,.15);animation:twinkle var(--d,4s) ease-in-out infinite}
+.dark .star.s1{width:2px;height:2px}
+.dark .star.s2{width:3px;height:3px;box-shadow:0 0 3px rgba(255,255,255,.06)}
+.dark .star.s3{width:4px;height:4px;box-shadow:0 0 6px rgba(255,255,255,.08)}
+@keyframes twinkle{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.scr{display:none}.scr.act{display:block}
+.glass{background:var(--glass);backdrop-filter:blur(16px)}.glass-card{background:var(--card-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);box-shadow:0 8px 32px var(--shadow)}
+
+/* ===== HOME ===== */
+.home-h{text-align:center}
+.home-h h1{font-size:22px;color:var(--tier);transition:color .4s;animation:titleFloat 3s ease-in-out infinite}
+@keyframes titleFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.home-h .v{font-size:12px;color:var(--text3)}
+.home-streak{display:flex;justify-content:center;align-items:center;gap:8px;background:var(--glass);backdrop-filter:blur(12px);border-radius:14px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:var(--text2)}
+.home-streak b{color:#D4A76A;font-size:16px}
+.home-grid{display:flex;gap:10px;margin-bottom:16px}
+.home-card{flex:1;position:relative;background:var(--card-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:16px;padding:16px 8px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .3s;box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08)}
+.home-card::after{content:'';position:absolute;inset:-5px;border-radius:21px;background:var(--tier);opacity:0;filter:blur(14px);z-index:-1;pointer-events:none;transition:opacity .4s}
+.home-card:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.06),0 10px 28px rgba(0,0,0,.1),0 20px 50px rgba(0,0,0,.12)}
+.home-card:hover::after{opacity:.35}
+.home-card:active{transform:scale(.96)}
+.home-ring{position:relative;width:64px;height:64px;margin:0 auto 8px}
+.home-ring svg{transform:rotate(-90deg)}
+.home-ring .bg{fill:none;stroke:rgba(237,232,224,.5);stroke-width:5}
+.home-ring .fg{fill:none;stroke:var(--tier2);stroke-width:5;stroke-linecap:round;stroke-dasharray:157;stroke-dashoffset:157;transition:stroke-dashoffset .5s,stroke .4s}
+.home-ring .fg.gold{stroke:#D4A76A}
+.home-pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:700;color:var(--text)}
+.home-label{font-size:13px;color:var(--text2);margin-bottom:2px}
+.home-hsks{font-size:12px;color:var(--text3)}
+.home-cta{width:100%;padding:16px;border:none;border-radius:14px;font-size:17px;font-weight:600;cursor:pointer;background:var(--tier);color:#fff;box-shadow:0 4px 12px var(--shadow);margin-bottom:12px;transition:background .3s}
+.home-cta:active{transform:scale(.97)}
+/* ===== HOME: 标题栏图标 ===== */
+.hd-icon{width:28px;height:28px;border-radius:7px;border:1px solid var(--glass-border);background:var(--glass);backdrop-filter:blur(8px);font-size:15px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.hd-icon:active{transform:scale(.9)}
+
+/* ===== HOME: 每日一句 ===== */
+.daily-sent{background:var(--glass);backdrop-filter:blur(12px);border-radius:14px;padding:12px 16px;margin-bottom:10px;border:1px solid var(--glass-border);min-height:72px}
+.ds-label{font-size:12px;font-weight:600;color:var(--text3);margin-bottom:4px}
+.ds-body{transition:opacity .5s}
+.ds-text{font-size:15px;color:var(--tier);line-height:1.5;margin-bottom:2px;transition:color .3s}
+.ds-py{font-size:12px;color:var(--text3);margin-bottom:1px}
+.ds-my{font-size:14px;color:var(--text2);line-height:1.4}
+
+/* ===== HOME: 今日学习 ===== */
+.today-learn{background:var(--glass);backdrop-filter:blur(12px);border-radius:14px;padding:12px 16px;margin-bottom:10px;border:1px solid var(--glass-border)}
+.tl-label{font-size:12px;font-weight:600;color:var(--text3);margin-bottom:6px}
+.tl-empty{font-size:14px;color:var(--text2);padding:8px 0}
+.tl-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:14px;border-bottom:1px solid rgba(0,0,0,.04)}
+.tl-item:last-child{border-bottom:none}
+.tl-word{color:var(--text);font-weight:500}
+.tl-py{font-size:12px;color:var(--text3);margin-left:6px}
+.tl-status{font-size:12px;padding:2px 8px;border-radius:6px}
+.tl-status.ok{background:rgba(213,232,221,.8);color:#3D7A5F}
+.tl-status.no{background:rgba(232,221,213,.8);color:#B06060}
+
+/* ===== HOME: 学习统计 ===== */
+.home-stats{display:flex;gap:8px;margin-bottom:10px}
+.stat-card{flex:1;background:var(--card-bg);backdrop-filter:blur(8px);border-radius:12px;padding:10px 6px;text-align:center;border:1px solid var(--glass-border)}
+.stat-num{font-size:18px;font-weight:700;color:var(--tier);transition:color .3s}
+.stat-label{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* ===== SMALL SCREEN ===== */
+@media(max-width:380px){
+  .cd{min-height:200px}
+  .ci{min-height:200px}
+  .cf{min-height:200px;padding:16px 12px}
+  .home-card{padding:12px 4px}
+  .home-ring{width:52px;height:52px}
+  .home-ring svg{width:52px;height:52px}
+  .daily-sent{padding:10px 12px;min-height:60px}
+  .hd-icon{width:26px;height:26px;font-size:14px}
+}
+@media(max-width:350px){
+  .hd-icon{width:24px;height:24px;font-size:13px}
+  .hd-r{gap:3px}
+}
+
+/* ===== DESKTOP ===== */
+@media(min-width:600px){
+  #app{max-width:520px;padding:24px}
+  .home-h h1{font-size:26px}
+  .hd h1{font-size:20px}
+  .home-streak{font-size:15px;padding:12px 20px}
+  .home-streak b{font-size:18px}
+  .home-label{font-size:14px}
+  .home-hsks{font-size:13px}
+  .home-pct{font-size:16px}
+  .home-cta{font-size:19px;padding:18px}
+  .daily-sent{padding:16px 20px}
+  .ds-text{font-size:17px}
+  .ds-py{font-size:13px}
+  .ds-my{font-size:15px}
+  .today-learn{padding:16px 20px}
+  .tl-item{font-size:15px}
+  .home-stats{gap:12px}
+  .stat-card{padding:14px 10px}
+  .stat-num{font-size:22px}
+  .stat-label{font-size:13px}
+  .tab{font-size:15px;padding:10px}
+  .cw{font-size:48px}
+  .cp{font-size:20px}
+  .cbur{font-size:28px}
+  .qq{font-size:38px}
+  .rp{font-size:16px}
+  .ri-opt{padding:12px;font-size:16px}
+  .qopt{padding:16px;font-size:17px}
+  .op{max-width:540px}
+  .hd{margin-bottom:12px;padding:10px 16px}
+  .hd-btn{font-size:14px;padding:4px 12px}
+  .hd-icon{width:32px;height:32px;font-size:17px}
+  .theme-btn{font-size:20px}
+  .sb{font-size:14px;padding:10px 16px;margin-bottom:12px}
+  .spct{font-size:13px}
+  .tabs{gap:8px;margin-bottom:12px}
+}
+
+/* ===== HEADER ===== */
+.hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;background:var(--glass);backdrop-filter:blur(12px);border-radius:14px;padding:8px 12px;border:1px solid var(--glass-border)}
+.hd h1{font-size:17px;color:var(--tier);transition:color .4s;cursor:pointer}
+.hd-r{display:flex;gap:4px;align-items:center}
+.hd-btn{background:none;border:1px solid var(--glass-border);border-radius:8px;padding:3px 10px;font-size:13px;color:var(--text2);cursor:pointer}
+.hd-btn.active{background:var(--tier);color:#fff;border-color:var(--tier)}
+.theme-btn{font-size:15px;background:none;border:none;cursor:pointer;color:var(--text2);padding:2px}
+
+/* ===== STREAK ===== */
+.sb{display:flex;align-items:center;gap:8px;background:var(--glass);backdrop-filter:blur(12px);border-radius:12px;padding:8px 12px;margin-bottom:8px;font-size:13px;color:var(--text2)}
+.sb b{color:#D4A76A}
+.sbar{flex:1;height:5px;background:rgba(237,232,224,.4);border-radius:3px;overflow:hidden}
+.sfil{height:100%;background:var(--tier);border-radius:3px;width:0%;transition:background .3s,width .3s}
+.spct{font-size:12px;color:var(--tier);font-weight:600;transition:color .3s}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:6px;margin-bottom:8px}
+.tab{flex:1;padding:8px;border:1px solid var(--glass-border);border-radius:10px;background:var(--glass);backdrop-filter:blur(8px);font-size:14px;color:var(--text2);cursor:pointer;text-align:center;font-weight:500;position:relative;box-shadow:0 1px 3px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.05),0 8px 24px rgba(0,0,0,.06);transition:all .2s,box-shadow .3s}
+.tab::after{content:'';position:absolute;inset:-3px;border-radius:13px;background:var(--tier);opacity:0;filter:blur(10px);z-index:-1;pointer-events:none;transition:opacity .4s}
+.tab:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.06),0 8px 20px rgba(0,0,0,.08),0 16px 40px rgba(0,0,0,.1)}
+.tab:hover::after{opacity:.2}
+.tab.active{border-color:var(--tier);color:var(--tier);background:rgba(229,240,236,.8);transition:border-color .3s,color .3s,box-shadow .3s}
+.dark .tab.active{background:rgba(91,159,143,.18)}
+
+/* ===== CARD ===== */
+.cd{position:relative;margin-bottom:8px;perspective:1000px;border-radius:18px;min-height:260px;box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08)}
+.cd::after{content:'';position:absolute;inset:-5px;border-radius:23px;background:var(--tier);opacity:0;filter:blur(14px);z-index:-1;pointer-events:none;transition:opacity .4s}
+.cd:hover{box-shadow:0 4px 8px rgba(0,0,0,.06),0 10px 28px rgba(0,0,0,.1),0 20px 50px rgba(0,0,0,.12)}
+.cd:hover::after{opacity:.35}
+.ci{position:relative;width:100%;min-height:260px;transition:transform .5s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
+.ci.fd{transform:rotateY(180deg)}
+.cf{position:absolute;top:0;left:0;width:100%;min-height:260px;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:18px;padding:24px 16px;background:var(--card-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08),0 1px 0 rgba(255,255,255,.3) inset,0 -1px 0 rgba(0,0,0,.04) inset}
+.dark .cf{box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08),0 1px 0 rgba(255,255,255,.04) inset}
+.cb{transform:rotateY(180deg);background:var(--card-back)}
+.cw{font-size:44px;color:var(--text);margin-bottom:6px}
+.cp{font-size:18px;color:var(--text3);margin-bottom:10px}
+.cbtn{width:48px;height:48px;border-radius:50%;border:none;background:#E5F0EC;color:#5B9F8F;font-size:20px;cursor:pointer;margin:0 auto;display:block}
+.cbtn:active{background:#D0E4D8}
+.ch{font-size:13px;color:var(--text3);margin-top:10px}
+.cbur{font-size:26px;color:var(--text);margin-bottom:12px}
+.cex{font-size:15px;color:#5B9F8F;line-height:1.6;display:inline}
+.cbsm{width:26px;height:26px;border-radius:50%;border:none;background:#E5F0EC;color:#5B9F8F;font-size:12px;cursor:pointer;vertical-align:middle;margin-left:4px}
+.cep{font-size:13px;color:var(--text3);margin:4px 0}
+.cem{font-size:14px;color:var(--text2);line-height:1.5}
+
+.ac{display:flex;gap:8px;margin-top:12px;margin-bottom:8px}
+.btn{flex:1;padding:14px;border:2px solid transparent;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn:active{transform:scale(.96)}
+.bf{background:rgba(232,221,213,.8);color:#B06060;border-color:#B06060}
+.br{background:rgba(213,232,221,.8);color:#3D7A5F;border-color:#3D7A5F}
+.pr{text-align:center;font-size:13px;color:var(--text2);margin-bottom:6px}
+.pr span{color:var(--tier);font-weight:600;transition:color .3s}
+.filter-bar{display:flex;gap:6px;margin-bottom:8px;padding:0 2px;overflow-x:auto}
+.fc{padding:5px 12px;border:1px solid var(--glass-border);border-radius:16px;background:var(--glass);backdrop-filter:blur(8px);font-size:13px;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.fc.active{border-color:var(--tier);color:var(--tier);background:rgba(229,240,236,.7)}
+.shuffle-btn{background:none;border:1px solid var(--glass-border);border-radius:8px;padding:4px 10px;font-size:13px;color:var(--text2);cursor:pointer;transition:all .2s;vertical-align:middle}
+.shuffle-btn:hover{transform:translateY(-1px);border-color:var(--tier);color:var(--tier)}
+.shuffle-btn:active{transform:scale(.93)}
+
+/* ===== QUIZ ===== */
+.qtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.qback{background:none;border:none;font-size:14px;color:var(--text2);cursor:pointer;padding:4px}
+.qnum{font-size:14px;color:var(--text2);font-weight:500}
+.qscore{font-size:14px;color:var(--tier);transition:color .3s}
+.qcard{position:relative;background:var(--card-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:18px;padding:24px 20px;margin-bottom:12px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08);transition:box-shadow .3s}
+.qcard::after{content:'';position:absolute;inset:-5px;border-radius:23px;background:var(--tier);opacity:0;filter:blur(14px);z-index:-1;pointer-events:none;transition:opacity .4s}
+.qcard:hover{box-shadow:0 4px 8px rgba(0,0,0,.06),0 10px 28px rgba(0,0,0,.1),0 20px 50px rgba(0,0,0,.12)}
+.qcard:hover::after{opacity:.35}
+.qq{font-size:34px;color:var(--text);margin-bottom:4px}
+.qp{font-size:16px;color:var(--text3);margin-bottom:12px}
+.qopt{display:block;width:100%;padding:14px;margin-bottom:8px;border:2px solid var(--glass-border);border-radius:12px;background:var(--glass);backdrop-filter:blur(8px);font-size:16px;color:var(--text);cursor:pointer;text-align:center;transition:all .2s}
+.qopt:hover{transform:translateY(-1px);border-color:var(--tier)}
+.qopt.correct{border-color:var(--tier);background:rgba(229,240,236,.8);color:#3D7A5F}
+.qopt.wrong{border-color:#D48A8A;background:rgba(245,229,229,.8);color:#B06060}
+.qopt.show{border-color:var(--tier);background:rgba(229,240,236,.8);color:#3D7A5F}
+.qprog{height:4px;background:rgba(237,232,224,.4);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.qfil{height:100%;background:var(--tier);border-radius:2px;width:0%;transition:width .3s,background .3s}
+
+/* ===== RESULT ===== */
+.rh{text-align:center;padding:20px 0 12px}
+.ri{font-size:56px;margin-bottom:6px}
+.rs{font-size:42px;font-weight:700;color:var(--text)}.rs span{font-size:18px;color:var(--text2)}
+.rp{font-size:14px;color:var(--text2);margin-top:4px}
+.rb{display:flex;gap:8px;margin-bottom:12px}
+.rbi{position:relative;flex:1;background:var(--glass);backdrop-filter:blur(8px);border:1px solid var(--glass-border);border-radius:12px;padding:12px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08);transition:box-shadow .3s}
+.rbi::after{content:'';position:absolute;inset:-4px;border-radius:16px;background:var(--tier);opacity:0;filter:blur(10px);z-index:-1;pointer-events:none;transition:opacity .4s}
+.rbi:hover{box-shadow:0 4px 8px rgba(0,0,0,.06),0 10px 28px rgba(0,0,0,.1),0 20px 50px rgba(0,0,0,.12)}
+.rbi:hover::after{opacity:.3}
+.rn{font-size:20px;font-weight:700;color:var(--tier);transition:color .3s}
+.rl{font-size:12px;color:var(--text2);margin-top:2px}
+.rn.red{color:#B06060}
+.rbadge{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;padding:4px 0}
+.bd{flex-shrink:0;width:80px;background:var(--glass);backdrop-filter:blur(8px);border-radius:12px;padding:10px 6px;text-align:center;border:2px solid var(--glass-border)}
+.bd.unlocked{border-color:#D4A76A;background:rgba(255,248,237,.8)}
+.bd.locked{opacity:.4}
+.bi{font-size:24px;margin-bottom:2px}
+.bn{font-size:12px;color:var(--text2);line-height:1.2}
+.rerr{margin-bottom:10px}
+.reh{font-size:14px;font-weight:600;color:#B06060;margin-bottom:6px}
+.rei{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--glass);backdrop-filter:blur(4px);border-radius:8px;margin-bottom:4px;font-size:14px}
+.rec{color:var(--tier)}.rew{color:#B06060}
+
+/* ===== RIGHT PANEL ===== */
+#learnRight{display:none}
+.ri-card{position:relative;background:var(--card-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:18px;padding:24px 20px;text-align:center;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08),0 1px 0 rgba(255,255,255,.3) inset;transition:box-shadow .3s}
+.ri-card::after{content:'';position:absolute;inset:-5px;border-radius:23px;background:var(--tier);opacity:0;filter:blur(14px);z-index:-1;pointer-events:none;transition:opacity .4s}
+.ri-card:hover{box-shadow:0 4px 8px rgba(0,0,0,.06),0 10px 28px rgba(0,0,0,.1),0 20px 50px rgba(0,0,0,.12),0 1px 0 rgba(255,255,255,.3) inset}
+.ri-card:hover::after{opacity:.35}
+.dark .ri-card{box-shadow:0 2px 4px rgba(0,0,0,.04),0 6px 16px rgba(0,0,0,.06),0 12px 36px rgba(0,0,0,.08),0 1px 0 rgba(255,255,255,.04) inset}
+.ri-label{font-size:13px;color:var(--text2);margin-bottom:4px;font-weight:600}
+.ri-opt{display:block;width:100%;padding:10px;margin-bottom:6px;border:2px solid var(--glass-border);border-radius:10px;background:var(--glass);backdrop-filter:blur(8px);font-size:14px;color:var(--text);cursor:pointer;text-align:center;transition:all .2s}
+.ri-opt:hover{transform:translateY(-1px);border-color:var(--tier)}
+.ri-opt.correct{border-color:var(--tier);background:rgba(229,240,236,.8);color:#3D7A5F}
+.ri-opt.wrong{border-color:#D48A8A;background:rgba(245,229,229,.8);color:#B06060}
+.ri-opt.show{border-color:var(--tier);background:rgba(229,240,236,.8);color:#3D7A5F}
+
+/* ===== SETTINGS ===== */
+.settings-section{margin-bottom:16px}
+.settings-label{font-size:12px;font-weight:600;color:var(--text3);margin-bottom:6px}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--glass);backdrop-filter:blur(8px);border-radius:10px;margin-bottom:6px;font-size:14px;color:var(--text)}
+.setting-row button{background:none;border:1px solid var(--glass-border);border-radius:8px;padding:6px 14px;font-size:13px;cursor:pointer;color:var(--text2)}
+.setting-row button.danger{color:#B06060;border-color:rgba(176,96,96,.3)}
+.setting-row button.primary{color:var(--tier);border-color:var(--tier)}
+
+/* ===== OVERLAY ===== */
+.ov{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(44,42,40,.5);z-index:100;justify-content:center;align-items:flex-end}
+.ov.act{display:flex}
+.op{background:var(--card-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:20px 20px 0 0;width:100%;max-width:420px;max-height:80vh;padding:20px;overflow-y:auto;animation:up .25s ease}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.oh{width:36px;height:4px;background:var(--text3);border-radius:2px;margin:0 auto 14px;opacity:.4}
+.occ{width:100%;padding:14px;border:none;border-radius:12px;background:var(--tier);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .3s}
+
+/* ===== DESKTOP ===== */
+@media(min-width:768px){
+  #app{max-width:820px;padding:24px}
+  .hd,.sb,.tab,.cf,.qcard,.rbi,.bd,.op{background:rgba(251,248,242,.65);backdrop-filter:blur(20px)}
+  .dark .hd,.dark .sb,.dark .tab,.dark .cf,.dark .qcard,.dark .rbi,.dark .bd,.dark .op{background:rgba(40,34,48,.7);backdrop-filter:blur(18px)}
+  .cb{background:rgba(251,248,242,.65)}
+  .dark .cb{background:rgba(40,34,48,.7)}
+  .home-grid{max-width:500px;margin:0 auto 16px}
+  .home-cta{max-width:500px;margin:0 auto 12px;display:block}
+  .learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:stretch;max-width:720px;margin:0 auto}
+  .learn-left{min-width:0}
+  .learn-right{min-width:0}
+  #learnRight{display:block!important}
+  .cd{cursor:default;min-height:auto;margin-bottom:0;height:100%}
+  .ci{transform:none!important;min-height:auto;transition:none;height:100%;display:flex;flex-direction:column;border-radius:18px;overflow:hidden}
+  .ci .cf{position:static;backface-visibility:visible;min-height:auto;transform:none;padding:24px 20px 12px;border-radius:0;flex:1;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid rgba(0,0,0,.04)}
+  .ci .cb{position:static;backface-visibility:visible;min-height:auto;transform:none;padding:12px 20px 24px;border-radius:0;display:flex!important;flex-direction:column;justify-content:center}
+  .ch,.card-hint{display:none}
+  .ac{display:flex!important}
+  .sb{margin-bottom:12px}
+  .tabs{margin-bottom:12px}
+  .qopts-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .qopt{margin-bottom:0;min-height:60px;display:flex;align-items:center;justify-content:center;padding:10px 8px;font-size:15px}
+  .ri-opt{font-size:15px;padding:12px}
+  .dark .star.s2{width:4px;height:4px}
+  .dark .star.s3{width:5px;height:5px;box-shadow:0 0 8px rgba(255,255,255,.1)}
+}
+</style>
+</head>
+<body>
+<div id="cursorGlow"></div>
+<div id="bgAtmo"></div>
+<div id="orbContainer"></div>
+<div id="starField"></div>
+<div id="app">
+
+<!-- ===== LOADING OVERLAY ===== -->
+<div id="loadingOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg1);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;opacity:1;transition:opacity .3s">
+  <div style="width:36px;height:36px;border:3px solid var(--glass-border);border-top-color:var(--tier);border-radius:50%;animation:loadSpin .6s linear infinite"></div>
+  <div style="font-size:14px;color:var(--text2);margin-top:12px" id="loadingText">载入中...</div>
+</div>
+<style>
+@keyframes loadSpin{to{transform:rotate(360deg)}}
+</style>
+
+<!-- ===== HOME ===== -->
+<div class="scr act" id="scrHome">
+  <div class="hd">
+    <h1 style="font-size:22px;animation:titleFloat 3s ease-in-out infinite">HKAWN MAI 學中文 <small style="font-size:12px;color:var(--text3);font-weight:400;animation:none">v0.2.1</small></h1>
+    <div class="hd-r">
+      <button class="hd-icon" onclick="openManual()" title="使用手册">📖</button>
+      <button class="hd-icon" onclick="openSettings()" title="设置">⚙️</button>
+      <button class="hd-btn" onclick="toggleLang()" style="font-size:13px">မြန်မာ</button>
+      <button class="theme-btn" onclick="toggleTheme()" style="font-size:18px">🌙</button>
+    </div>
+  </div>
+  <div class="home-streak">🔥 <b id="hStreak">0</b> <span id="streakL">天连续学习</span></div>
+  <div class="home-grid">
+    <div class="home-card" onclick="switchTier('beginner')">
+      <div class="home-ring"><svg width="64" height="64" viewBox="0 0 64 64"><circle class="bg" cx="32" cy="32" r="25"/><circle class="fg" id="ringB" cx="32" cy="32" r="25" style="stroke:#5B9F8F"/></svg><div class="home-pct" id="pctB">0%</div></div>
+      <div class="home-label" id="homeL0">🌱 初级</div>
+      <div class="home-hsks">HSK 1-3 · 1,454</div>
+    </div>
+    <div class="home-card" onclick="switchTier('intermediate')">
+      <div class="home-ring"><svg width="64" height="64" viewBox="0 0 64 64"><circle class="bg" cx="32" cy="32" r="25"/><circle class="fg" id="ringI" cx="32" cy="32" r="25" style="stroke:#6B8FAF"/></svg><div class="home-pct" id="pctI">0%</div></div>
+      <div class="home-label" id="homeL1">🌊 中级</div>
+      <div class="home-hsks">HSK 4-5 · 2,670</div>
+    </div>
+    <div class="home-card" onclick="switchTier('advanced')">
+      <div class="home-ring"><svg width="64" height="64" viewBox="0 0 64 64"><circle class="bg" cx="32" cy="32" r="25"/><circle class="fg" id="ringA" cx="32" cy="32" r="25" style="stroke:#9A7FAF"/></svg><div class="home-pct" id="pctA">0%</div></div>
+      <div class="home-label" id="homeL2">🌅 高级</div>
+      <div class="home-hsks">HSK 6 · 3,295</div>
+    </div>
+  </div>
+  <button class="home-cta" id="homeCta" onclick="continueLearning()">📖 开始学习</button>
+  <div class="daily-sent">
+    <div class="ds-label" id="dailySentence">💡 每日一句</div>
+    <div class="ds-body" id="dsBody">
+      <div class="ds-text" id="dsText"></div>
+      <div class="ds-py" id="dsPy"></div>
+      <div class="ds-my" id="dsMy"></div>
+    </div>
+  </div>
+  <div class="today-learn">
+    <div class="tl-label" id="todayLearn">📚 今日学习</div>
+    <div id="tlContent"></div>
+  </div>
+  <div class="home-stats" id="homeStats">
+    <div class="stat-card"><div class="stat-num" id="statQuizNum">0</div><div class="stat-label" id="statQuiz">📝 测验数</div></div>
+    <div class="stat-card"><div class="stat-num" id="statScoreNum">0</div><div class="stat-label" id="statScore">⭐ 最高分</div></div>
+    <div class="stat-card"><div class="stat-num" id="statWordsNum">0</div><div class="stat-label" id="statWords">🔤 已学词</div></div>
+  </div>
+  <div style="font-size:12px;color:var(--text3);text-align:center;margin-top:12px;line-height:1.6;padding:0 16px">© 2026 銘於心 (MING). 智慧物聯架構實驗室.</div>
+</div>
+
+<div id="appHeader" style="display:none">
+<div class="hd">
+  <h1 id="hTitle" onclick="goHome()">← 返回</h1>
+  <div class="hd-r">
+    <button class="hd-btn" id="langBtn" onclick="toggleLang()">မြန်မာ</button>
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙</button>
+  </div>
+</div>
+
+<div class="sb">
+  🔥 <b id="sDays">0</b> <span id="sDaysL">天</span>
+  <div class="sbar"><div class="sfil" id="sFil"></div></div>
+  <span class="spct" id="sPct">0%</span>
+</div>
+
+<div class="tabs">
+  <div class="tab" onclick="showLearn()"><span id="tLearn">📖 学习</span></div>
+  <div class="tab" onclick="showQuizSetup()"><span id="tQuiz">📝 测验</span></div>
+</div>
+</div>
+
+<!-- ===== HSK FILTER ===== -->
+<div class="filter-bar" id="filterBar" style="display:none">
+  <span class="fc active" data-hsk="0" onclick="setHskFilter(0)" id="fc0">全部</span>
+  <span class="fc" data-hsk="1" onclick="setHskFilter(1)" id="fc1">HSK 1</span>
+  <span class="fc" data-hsk="2" onclick="setHskFilter(2)" id="fc2">HSK 2</span>
+  <span class="fc" data-hsk="3" onclick="setHskFilter(3)" id="fc3">HSK 3</span>
+</div>
+
+<!-- ===== LEARN ===== -->
+<div class="scr" id="scrLearn">
+<div class="learn-grid">
+<div class="learn-left">
+  <div class="cd" onclick="doFlip()">
+    <div class="ci" id="ci">
+      <div class="cf"><div class="cw" id="lWord">—</div><div class="cp" id="lPy"></div>
+        <button class="cbtn" onclick="event.stopPropagation();playWord()">🔊</button>
+        <div class="ch" id="lHint">点击卡片</div></div>
+      <div class="cf cb"><div class="cbur" id="lBur"></div>
+        <div><div class="cex" id="lEx"></div><button class="cbsm" onclick="event.stopPropagation();playSent()">🔊</button></div>
+        <div class="cep" id="lEp"></div><div class="cem" id="lEm"></div></div>
+    </div>
+  </div>
+  <div class="ac" id="lActs" style="display:none">
+    <button class="btn bf" onclick="mark(0)">✕ <span id="lForgot">忘了</span></button>
+    <button class="btn br" onclick="mark(1)">✓ <span id="lRemember">记得</span></button>
+  </div>
+  <div class="pr"><span id="lDone">0</span>/<span id="lTotal">0</span> · <span id="lRem">0</span> <button class="shuffle-btn" onclick="shuffleLearn()">🔀 <span id="shuffleLbl">随机</span></button></div>
+</div>
+<div class="learn-right" id="learnRight">
+  <div class="ri-card">
+    <div class="ri-label"><span id="riLabel">🤔 選出正確緬文</span></div>
+    <div id="riOptions"></div>
+    <div id="riResult" style="display:none;width:100%;margin-top:8px;padding-top:8px;border-top:1px solid var(--glass-border)">
+      <div class="ri-label" style="margin-bottom:4px">📖 例句</div>
+      <div class="cex" id="riExample"></div>
+      <div class="cep" id="riExampleEp"></div>
+      <div class="cem" id="riExampleEm"></div>
+      <button class="cbsm" style="margin:6px auto 0" onclick="playSent()">🔊</button></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- ===== QUIZ SETUP ===== -->
+<div class="scr" id="scrQuizSetup">
+  <div style="text-align:center;padding:20px 0">
+    <div style="font-size:44px;margin-bottom:8px">📝</div>
+    <div style="font-size:17px;font-weight:600;margin-bottom:4px" id="qsTitle">测验</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px" id="qsSub">选题数开始测验</div>
+    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:16px">
+      <button class="btn" style="flex:0;padding:10px 20px;background:var(--glass);border:2px solid var(--glass-border);color:var(--text2);font-size:14px" onclick="setQCount(10)" id="q10">10</button>
+      <button class="btn" style="flex:0;padding:10px 20px;background:var(--glass);border:2px solid var(--glass-border);color:var(--text2);font-size:14px" onclick="setQCount(20)" id="q20">20</button>
+      <button class="btn" style="flex:0;padding:10px 20px;background:var(--glass);border:2px solid var(--glass-border);color:var(--text2);font-size:14px" onclick="setQCount(50)" id="q50">50</button>
+      <button class="btn" style="flex:0;padding:10px 20px;background:var(--glass);border:2px solid var(--glass-border);color:var(--text2);font-size:14px" onclick="startQuiz()" id="qsShuffle">🔀 <span id="qsShuffleLbl">随机</span></button>
+    </div>
+    <button class="btn" style="background:var(--tier);color:#fff;max-width:180px;margin:0 auto" id="qsStart" onclick="startQuiz()">开始测验</button>
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="scr" id="scrQuiz">
+  <div class="qtop">
+    <button class="qback" onclick="showLearn()">← <span id="qQuit">退出</span></button>
+    <div class="qnum" id="qNum">1/10</div>
+    <div class="qscore" id="qScore">⭐0</div>
+  </div>
+  <div class="qprog"><div class="qfil" id="qFil"></div></div>
+  <div class="qcard">
+    <div class="qq" id="qWord">—</div>
+    <div class="qp" id="qPy"></div>
+    <button class="cbtn" onclick="playQuizWord()" style="margin-top:2px">🔊</button>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--glass-border);display:none" id="qSentArea">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:2px" id="qSentHint">💡 例句提示</div>
+      <div style="font-size:14px;color:#5B9F8F;line-height:1.5" id="qSentText"></div>
+      <div style="font-size:12px;color:var(--text3);margin-top:2px" id="qSentEp"></div>
+      <button class="cbsm" onclick="playQuizSent()" style="margin-top:4px">🔊</button>
+    </div>
+  </div>
+  <div id="qOpts"></div>
+</div>
+
+<!-- ===== RESULT ===== -->
+<div class="scr" id="scrResult">
+  <div class="rh"><div class="ri" id="rIcon">🎉</div>
+    <div class="rs"><span id="rScore">0</span><span>/<span id="rTotal">0</span></span></div>
+    <div class="rp" id="rPct"></div></div>
+  <div class="rb">
+    <div class="rbi"><div class="rn" id="rCorr">0</div><div class="rl" id="rCorrL">正確</div></div>
+    <div class="rbi"><div class="rn red" id="rWron">0</div><div class="rl" id="rWronL">错误</div></div>
+  </div>
+  <div id="rBadgesContainer"></div>
+  <div id="rErrors" style="display:none" class="rerr">
+    <div class="reh" id="rErrTitle">❌ 錯題</div>
+    <div id="rErrList"></div>
+  </div>
+  <div class="ac">
+    <button class="btn bf" onclick="startQuiz()">🔄 <span id="rRetryL">再测</span></button>
+    <button class="btn br" onclick="showLearn()"><span id="rBackL">返回</span></button>
+  </div>
+</div>
+
+<!-- ===== SETTINGS OVERLAY ===== -->
+<div class="ov" id="ovSettings" onclick="if(event.target===this)closeSettings()">
+<div class="op">
+<div class="oh"></div>
+<div class="settings-section">
+<div class="settings-label" id="sDataTitle">📤 数据管理</div>
+<div class="setting-row"><span id="sExport">💾 导出进度</span><button class="primary" id="sExportBtn" onclick="exportData()">下载</button></div>
+<div class="setting-row"><span id="sImport">📂 导入进度</span><button class="primary" id="sImportBtn" onclick="document.getElementById('importFile').click()">上传</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"></div>
+</div>
+<div class="settings-section">
+<div class="settings-label" id="sResetTitle">⟳ 重置进度</div>
+<div class="setting-row"><span id="sRstB">🌱 初级</span><button class="danger" id="sRstBBtn" onclick="resetTier('beginner')">重置</button></div>
+<div class="setting-row"><span id="sRstI">🌊 中级</span><button class="danger" id="sRstIBtn" onclick="resetTier('intermediate')">重置</button></div>
+<div class="setting-row"><span id="sRstA">🌅 高级</span><button class="danger" id="sRstABtn" onclick="resetTier('advanced')">重置</button></div>
+<div class="setting-row"><span id="sRstAll">⚠️ 全部</span><button class="danger" style="font-weight:700" id="sRstAllBtn" onclick="resetAll()">全部重置</button></div>
+</div>
+<button class="occ" id="sClose" onclick="closeSettings()">关闭</button>
+<div style="font-size:12px;color:var(--text3);text-align:center;margin-top:12px;line-height:1.5">
+HSK 官方大纲 · Antigravity(Gemini 3 Flash)翻译 · edge-tts Yunxi · pypinyin<br>
+v0.2.1 · 2026
+</div>
+</div></div>
+
+</div>
+
+<!-- BADGE OVERLAY -->
+<div class="ov" id="ovBadge" onclick="if(event.target===this)hideBadge()">
+<div class="op" style="text-align:center"><div class="oh"></div>
+<div style="font-size:56px;margin-bottom:8px" id="bIcon">🏆</div>
+<div style="font-size:17px;font-weight:600;margin-bottom:4px" id="bTitle"></div>
+<div style="font-size:13px;color:var(--text2)" id="bName"></div>
+<button class="occ" style="margin-top:12px" onclick="hideBadge()">✨ 太棒了！</button>
+</div></div>
+
+<!-- ===== MANUAL OVERLAY ===== -->
+<div class="ov" id="ovManual" onclick="if(event.target===this)closeManual()">
+<div class="op">
+<div class="oh"></div>
+<div class="settings-section">
+<div class="settings-label" id="manualTitle">📖 使用手册</div>
+<div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualLearn">🎴 学习</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualLearnDesc">翻转卡片学习中文词汇。看中文→想缅文，翻卡确认。右侧有选择题小测验加强记忆。</div>
+</div>
+<div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualQuiz">📝 测验</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualQuizDesc">两阶段测验：先选择正确缅甸语翻译打2分，再选择正确例句缅甸语翻译打1分。每题最高3分。</div>
+</div>
+<div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualShuffle">🔀 随机</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualShuffleDesc">学习时可随时按 🔀 洗牌按钮重新随机排序卡片。测验前可按 🔀 重新随机出题。</div>
+</div>
+<div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualSettings">⚙️ 设置</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualSettingsDesc">可切换界面语言（简体中文/缅甸语）、切换深色模式、导出/导入/重置学习进度数据。</div>
+</div>
+<div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+  <div style="font-size:13px;font-weight:600;color:var(--tier)" id="manualBadges">🏅 徽章</div>
+  <div style="font-size:12px;color:var(--text2);line-height:1.6" id="manualBadgesDesc">完成测验可解锁徽章：初试啼声（首次测验）、满分新手（10题满分）、完美达人（50题满分）、百词斩（累计学习100词）。</div>
+</div>
+</div>
+<div style="font-size:12px;color:var(--text3);text-align:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--glass-border);line-height:1.5">
+© 2026 銘於心 (MING). 智慧物聯架構實驗室.
+</div>
+<button class="occ" id="manualClose" onclick="closeManual()">关闭</button>
+</div></div>
+
+<script src="data/beginner.js"></script>
+<script>
+// ===== CONFIG =====
+var tiers={beginner:{name:'初级',color:'#5B9F8F',cl:'tier-b',data:typeof VOCAB_BEGINNER!=='undefined'?VOCAB_BEGINNER:[],hsks:'HSK 1-3'},
+  intermediate:{name:'中级',color:'#6B8FAF',cl:'tier-i',data:typeof VOCAB_INTERMEDIATE!=='undefined'?VOCAB_INTERMEDIATE:[],hsks:'HSK 4-5'},
+  advanced:{name:'高级',color:'#9A7FAF',cl:'tier-a',data:typeof VOCAB_ADVANCED!=='undefined'?VOCAB_ADVANCED:[],hsks:'HSK 6'}};
+var currentTier='beginner',words=[],order=[],lCur=0,done=[],lRem=0,lForg=0;
+var qCount=10,qItems=[],qCur=0,qCorr=0,qPart=0,qStage='word',qAnswered=false;
+var qAttempts=0,qPerfect10=0,qPerfect50=0,qTotalWords=0,riAnswered=false;
+var curLang='zh';
+var lang={zh:{hTitle:'← 返回',streakL:'天连续学习',tLearn:'📖 学习',tQuiz:'📝 测验',lHint:'点击卡片',lForgot:'忘了',lRemember:'记得',
+  qsTitle:'📝 测验',qsSub:'选题数开始测验',qQuit:'退出',rCorrL:'正确',rWronL:'错误',rRetryL:'再测',rBackL:'返回',
+  qs10:'10',qs20:'20',qs50:'50',qsStart:'开始测验',
+  badgeUnlock:'🎉 徽章解锁！',badgeOk:'✨ 太棒了！',lDoneAll:'全部完成！',riLabel:'选出正确缅文',b0:'初级',b1:'中级',b2:'高级',
+  sLang:'语言',sDark:'暗色模式',sExport:'💾 导出进度',sImport:'📂 导入进度',sReset:'重置',sAll:'全部',sClose:'关闭',
+  homeL0:'🌱 初级',homeL1:'🌊 中级',homeL2:'🌅 高级',homeCta:'📖 开始学习',homeSettings:'⚙️ 设置',
+  sDataTitle:'📤 数据管理',sExportSpan:'💾 导出进度',sExportBtn:'下载',sImportSpan:'📂 导入进度',sImportBtn:'上传',
+  sResetTitle:'⟳ 重置进度',sRstB:'🌱 初级',sRstI:'🌊 中级',sRstA:'🌅 高级',sRstAll:'⚠️ 全部',
+  sRstBBtn:'重置',sRstIBtn:'重置',sRstABtn:'重置',sRstAllBtn:'全部重置',
+  qSentHint:'💡 例句提示',
+  rRstB:'确定重置初级的全部进度？',rRstI:'确定重置中级的全部进度？',rRstA:'确定重置高级的全部进度？',
+  rRstAll1:'确定重置全部进度？（此操作无法复原）',rRstAll2:'再次确认：清除所有初级+中级+高级的学习记录？',
+  fAll:'全部',fHsk1:'HSK 1',fHsk2:'HSK 2',fHsk3:'HSK 3',fHsk4:'HSK 4',  fHsk5:'HSK 5',fHsk6:'HSK 6',manualBtn:'📖 使用手册',manualTitle:'📖 使用手册',manualLearn:'🎴 学习',manualLearnDesc:'翻转卡片学习中文词汇。看中文→想缅文，翻卡确认。右侧有选择题小测验加强记忆。',manualQuiz:'📝 测验',manualQuizDesc:'两阶段测验：先选择正确缅甸语翻译打2分，再选择正确例句缅甸语翻译打1分。每题最高3分。',manualShuffle:'🔀 随机',manualShuffleDesc:'学习时可随时按 🔀 洗牌按钮重新随机排序卡片。测验前可按 🔀 重新随机出题。',manualSettings:'⚙️ 设置',manualSettingsDesc:'可切换界面语言（简体中文/缅甸语）、切换深色模式、导出/导入/重置学习进度数据。',manualBadges:'🏅 徽章',manualBadgesDesc:'完成测验可解锁徽章：初试啼声（首次测验）、满分新手（10题满分）、完美达人（50题满分）、百词斩（累计学习100词）。',manualClose:'关闭',shuffleLbl:'随机',qsShuffleLbl:'随机',dailySentence:'💡 每日一句',todayLearn:'📚 今日学习',statQuiz:'📝 测验数',statScore:'⭐ 最高分',statWords:'🔤 已学词',noLearnYet:'还没有学习记录，开始吧！',remembered:'已记住',forgotten:'需复习'},
+  my:{hTitle:'← ပြန်',streakL:'ရက်ဆက်တိုး',tLearn:'📖 သင်ယူ',tQuiz:'📝 စာမေးပွဲ',lHint:'ကတ်ကိုနှိပ်ပါ',lForgot:'မေ့',lRemember:'မှတ်မိ',
+  qsTitle:'📝 စာမေးပွဲ',qsSub:'အရေအတွက်ရွေးပါ',qQuit:'ထွက်',rCorrL:'မှန်',rWronL:'မှား',rRetryL:'ထပ်စမ်း',rBackL:'ပြန်',
+  rErrTitle:'❌ မှားသောအဖြေများ',qs10:'၁၀',qs20:'၂၀',qs50:'၅၀',qsStart:'စတင်',
+  badgeUnlock:'🎉 တံဆိပ်ဖွင့်ပြီ！',badgeOk:'ကောင်းလိုက်တာ！',lDoneAll:'အားလုံးပြီးပြီ！',riLabel:'မှန်သောအဖြေကိုရွေးပါ',b0:'အခြေခံ',b1:'အလယ်',b2:'မြင့်',
+  sLang:'ဘာသာစကား',sDark:'အမှောင်မုဒ်',sExport:'💾 ဒေါင်းလုပ်',sImport:'📂 တင်သွင်း',sReset:'ပြန်သတ်',sAll:'အားလုံး',sClose:'ပိတ်',
+  homeL0:'🌱 အခြေခံ',homeL1:'🌊 အလယ်',homeL2:'🌅 မြင့်',homeCta:'📖 စတင်သင်ယူ',homeSettings:'⚙️ သတ်မှတ်',
+  sDataTitle:'📤 ဒေတာစီမံ',sExportSpan:'💾 ဒေါင်းလုပ်',sExportBtn:'ဒေါင်းလုပ်',sImportSpan:'📂 တင်သွင်း',sImportBtn:'တင်သွင်း',
+  sResetTitle:'⟳ ပြန်သတ်',sRstB:'🌱 အခြေခံ',sRstI:'🌊 အလယ်',sRstA:'🌅 မြင့်',sRstAll:'⚠️ အားလုံး',
+  sRstBBtn:'ပြန်သတ်',sRstIBtn:'ပြန်သတ်',sRstABtn:'ပြန်သတ်',sRstAllBtn:'အားလုံးပြန်သတ်',
+  qSentHint:'💡 ဝါကျအရိပ်အမြွက်',
+  rRstB:'အခြေခံတစ်ခုလုံးကိုပြန်သတ်မလား？',rRstI:'အလယ်တစ်ခုလုံးကိုပြန်သတ်မလား？',rRstA:'မြင့်တစ်ခုလုံးကိုပြန်သတ်မလား？',
+  rRstAll1:'တစ်ခုလုံးကိုပြန်သတ်မလား？（ပြန်မရနိုင်）',rRstAll2:'ထပ်အတည်ပြု：အားလုံးကိုရှင်းမလား？',
+  fAll:'အားလုံး',fHsk1:'HSK ၁',fHsk2:'HSK ၂',fHsk3:'HSK ၃',fHsk4:'HSK ၄',  fHsk5:'HSK ၅',fHsk6:'HSK ၆',manualBtn:'📖 အသုံးပြုလွှာ',manualTitle:'📖 အသုံးပြုလွှာ',manualLearn:'🎴 သင်ယူ',manualLearnDesc:'ကတ်လှန်ပြီး တရုတ်စကားလုံးများကို သင်ယူပါ။ တရုတ်လိုကြည့်→မြန်မာလိုစဉ်းစား၊ ကတ်လှန်ပြီးစစ်ဆေးပါ။ ညာဘက်တွင် ရွေးချယ်စရာမေးခွန်းများပါရှိသည်။',manualQuiz:'📝 စာမေးပွဲ',manualQuizDesc:'အဆင့်နှစ်ဆင့်စာမေးပွဲ- မှန်သောမြန်မာဘာသာပြန်ကိုရွေးပါ(၂မှတ်)၊ ထို့နောက် မှန်သောဝါကျမြန်မာပြန်ကိုရွေးပါ(၁မှတ်)။ တစ်ပုစ္ဆာအများဆုံး ၃မှတ်။',manualShuffle:'🔀 ကျပန်',manualShuffleDesc:'သင်ယူနေစဉ် 🔀 ခလုတ်ကိုနှိပ်ပြီး ကတ်များကိုပြန်လှန်နိုင်သည်။ စာမေးပွဲမစမီ 🔀 ဖြင့်ပြန်လှန်နိုင်သည်။',manualSettings:'⚙️ သတ်မှတ်',manualSettingsDesc:'ဘာသာစကားပြောင်းရန် (မြန်မာ/တရုတ်)၊ အမှောင်မုဒ်ပြောင်းရန်၊ ဒေတာထုတ်ယူ/တင်သွင်း/ပြန်သတ်ရန်။',manualBadges:'🏅 တံဆိပ်',manualBadgesDesc:'စာမေးပွဲပြီးပါက တံဆိပ်များရရှိနိုင်သည်- ပထမဆုံး(ပထမဆုံးစာမေးပွဲ)၊ အမှတ်ပြည့်(၁၀ပုစ္ဆာအမှတ်ပြည့်)၊ ပြီးပြည့်စုံ(၅၀ပုစ္ဆာအမှတ်ပြည့်)၊ စကားလုံး၁၀၀(စုစုပေါင်းစကားလုံး၁၀၀သင်ယူပြီး)။',manualClose:'ပိတ်',shuffleLbl:'ကျပန်',qsShuffleLbl:'ကျပန်',dailySentence:'💡 နေ့စဉ်ဝါကျ',todayLearn:'📚 ယနေ့သင်ယူ',statQuiz:'📝 စာမေးပွဲ',statScore:'⭐ အမြင့်ဆုံး',statWords:'🔤 သင်ယူပြီး',noLearnYet:'သင်ယူမှတ်တမ်းမရှိသေးပါ။',remembered:'မှတ်မိ',forgotten:'ပြန်လေ့လာရန်'}};
+
+function $(s){return document.getElementById(s)}
+function scr(id){document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('act')});$(id).classList.add('act')}
+function T(k){return lang[curLang][k]||k}
+function tn(n){return tiers[currentTier].name}
+
+function loadLang(){try{var l=localStorage.getItem('h_lang');if(l)curLang=l}catch(e){}}
+function toggleLang(){curLang=curLang==='zh'?'my':'zh';try{localStorage.setItem('h_lang',curLang)}catch(e){};applyLang();sndClick()}
+function applyLang(){
+  for(var k in lang.zh){
+    var el=document.getElementById(k);
+    if(el&&k!=='langBtn')el.textContent=lang[curLang][k]||lang.zh[k];
+  }
+  // Update language button text
+  $('langBtn').textContent=curLang==='zh'?'မြန်မာ':'中文';
+}
+
+function loadTheme(){try{if(localStorage.getItem('h_theme')==='dark'){document.body.classList.add('dark');$('themeBtn').textContent='☀️'}}catch(e){}}
+function toggleTheme(){document.body.classList.toggle('dark');var d=document.body.classList.contains('dark');$('themeBtn').textContent=d?'☀️':'🌙';try{localStorage.setItem('h_theme',d?'dark':'light')}catch(e){};sndClick()}
+
+// ===== TIER =====
+var hskFilter=0,loadingTier=null;
+
+function showLoading(t){var o=$('loadingOverlay');if(o){if(t)$('loadingText').textContent=t||'载入中...';o.style.display='flex'}}
+function hideLoading(){var o=$('loadingOverlay');if(o)o.style.display='none'}
+
+function loadScript(url,cb){
+  var s=document.createElement('script');s.src=url;
+  s.onload=function(){if(cb)cb()};
+  s.onerror=function(){hideLoading();if(cb)cb()};
+  document.head.appendChild(s);
+}
+
+function ensureTierData(tier,cb){
+  if(!tiers[tier]||(tiers[tier].data&&tiers[tier].data.length>0)){if(cb)cb();return}
+  if(loadingTier){setTimeout(function(){ensureTierData(tier,cb)},100);return}
+  loadingTier=tier;
+  showLoading();
+  var file=tier==='beginner'?'data/beginner.js':tier==='intermediate'?'data/intermediate.js':'data/advanced.js';
+  loadScript(file,function(){
+    if(tier==='beginner'&&typeof VOCAB_BEGINNER!=='undefined')tiers[tier].data=VOCAB_BEGINNER;
+    else if(tier==='intermediate'&&typeof VOCAB_INTERMEDIATE!=='undefined')tiers[tier].data=VOCAB_INTERMEDIATE;
+    else if(tier==='advanced'&&typeof VOCAB_ADVANCED!=='undefined')tiers[tier].data=VOCAB_ADVANCED;
+    loadingTier=null;hideLoading();if(cb)cb()
+  });
+}
+
+function loadTierData(tier){
+  currentTier=tier;
+  document.body.classList.remove('tier-b','tier-i','tier-a');
+  document.body.classList.add(tiers[tier].cl);
+  $('sFil').style.background=tiers[tier].color;
+  $('sPct').style.color=tiers[tier].color;
+  words=tiers[tier].data||[];
+  loadProgress();
+  lRem=done.filter(function(x){return x[1]}).length;
+  lForg=done.filter(function(x){return !x[1]}).length;
+  hskFilter=0;
+  setupFilterBar(tier);
+  buildOrder();lCur=0;nextCard();
+  $('lTotal').textContent=words.length;
+}
+
+function setupFilterBar(tier){
+  var fb=$('filterBar');
+  if(!fb)return;
+  fb.style.display='flex';
+  var labels={beginner:[{k:0,l:T('fAll')},{k:1,l:T('fHsk1')},{k:2,l:T('fHsk2')},{k:3,l:T('fHsk3')}],
+    intermediate:[{k:0,l:T('fAll')},{k:4,l:T('fHsk4')},{k:5,l:T('fHsk5')}],
+    advanced:[{k:0,l:T('fAll')},{k:6,l:T('fHsk6')}]};
+  var chips=labels[tier]||labels.beginner;
+  var h='';
+  for(var i=0;i<chips.length;i++){
+    h+='<span class="fc'+(chips[i].k===0?' active':'')+'" data-hsk="'+chips[i].k+'" onclick="setHskFilter('+chips[i].k+')">'+chips[i].l+'</span>';
+  }
+  fb.innerHTML=h;
+}
+
+function setHskFilter(hsk){
+  hskFilter=hsk;
+  // Update chip active state
+  var chips=$('filterBar').querySelectorAll('.fc');
+  for(var i=0;i<chips.length;i++){
+    chips[i].classList.toggle('active',parseInt(chips[i].getAttribute('data-hsk'))===hsk);
+  }
+  buildOrder();lCur=0;nextCard();
+  sndClick();
+}
+
+function switchTier(tier){
+  if(tier===currentTier){showLearn();return}
+  ensureTierData(tier,function(){
+    saveProgress();
+    loadTierData(tier);
+    $('appHeader').style.display='block';activateTab(0);
+    scr('scrLearn');
+    applyLang();sndClick()
+  });
+}
+
+function continueLearning(){
+  ensureTierData(currentTier,function(){
+    loadTierData(currentTier);
+    $('appHeader').style.display='block';activateTab(0);
+    scr('scrLearn');
+    applyLang();sndClick()
+  });
+}
+
+ function goHome(){
+   saveProgress();
+   updateHomeRings();
+   $('appHeader').style.display='none';
+   $('filterBar').style.display='none';
+   scr('scrHome');
+ $('appHeader').style.display='none';
+ showDailySentence();startDailyRotation();showTodayLearn();showHomeStats();
+ sndClick()
+ }
+
+function updateHomeRings(){
+  for(var k in tiers){
+    var d=loadTierProgress(k);
+    var total=tiers[k].data.length;
+    var done=d?d.length:0;
+    var pct=total>0?Math.round(done/total*100):0;
+    var ring=$('ring'+k.charAt(0).toUpperCase()+k.slice(1));
+    if(ring){
+      var circ=157;
+      var offset=circ-(circ*pct/100);
+      ring.style.strokeDashoffset=offset;
+    }
+    var pctEl=$('pct'+k.charAt(0).toUpperCase()+k.slice(1));
+    if(pctEl)pctEl.textContent=pct+'%';
+  }
+  var totalWords=0,totalDone=0;
+  for(var k in tiers){
+    totalWords+=tiers[k].data.length;
+    var d=loadTierProgress(k);
+    totalDone+=d?d.length:0;
+  }
+  $('hStreak').textContent=totalDone>100?Math.floor(totalDone/30):0;
+}
+
+// ===== HOME: 每日一句, 今日学习, 統計 =====
+var dsTimer=null;
+function showDailySentence(){
+  if(!words||words.length===0)return;
+  var w=words[Math.floor(Math.random()*words.length)];
+  if(!w)return;
+  $('dsText').textContent=w.e||'';
+  $('dsPy').textContent=w.ep||'';
+  $('dsMy').textContent=w.em||'';
+}
+function startDailyRotation(){
+  showDailySentence();
+  if(dsTimer)clearInterval(dsTimer);
+  dsTimer=setInterval(function(){
+    $('dsBody').style.opacity='0';
+    setTimeout(function(){
+      showDailySentence();
+      $('dsBody').style.opacity='1';
+    },400);
+  },8000);
+}
+function showTodayLearn(){
+  var c=$('tlContent');if(!c)return;
+  if(done.length===0){c.innerHTML='<div class="tl-empty">'+T('noLearnYet')+'</div>';return}
+  var recent=done.slice(-5).reverse();
+  var h='';
+  for(var i=0;i<recent.length;i++){
+    var w=words[recent[i][0]];
+    if(!w)continue;
+    var ok=recent[i][1];
+    h+='<div class="tl-item"><span><span class="tl-word">'+w.c+'</span><span class="tl-py">'+w.p+'</span></span><span class="tl-status '+(ok?'ok':'no')+'">'+(ok?T('remembered'):T('forgotten'))+'</span></div>';
+  }
+  c.innerHTML=h;
+}
+function showHomeStats(){
+  var totalQuiz=0,bestScore=0;
+  for(var k in tiers){
+    var q=loadTierQuiz(k);
+    totalQuiz+=q.a||0;
+    if(q.p10>0)bestScore=Math.max(bestScore,100);
+    if(q.p50>0)bestScore=Math.max(bestScore,100);
+  }
+  $('statQuizNum').textContent=totalQuiz;
+  $('statScoreNum').textContent=bestScore>0?bestScore+'%':'-';
+  var totalDone=0;
+  for(var k in tiers){var d=loadTierProgress(k);totalDone+=d?d.length:0}
+  $('statWordsNum').textContent=totalDone;
+}
+
+// ===== PROGRESS =====
+function getStorageKey(){return 'h_'+currentTier+'_done'}
+function getQuizKey(){return 'h_'+currentTier+'_quiz'}
+function getBadgeKey(){return 'h_'+currentTier+'_badges'}
+
+function loadProgress(){
+  try{var d=localStorage.getItem(getStorageKey());done=d?JSON.parse(d):[]}catch(e){done=[]}
+}
+function saveProgress(){
+  try{localStorage.setItem(getStorageKey(),JSON.stringify(done))}catch(e){}
+}
+function loadTierProgress(tier){
+  try{var d=localStorage.getItem('h_'+tier+'_done');return d?JSON.parse(d):[]}catch(e){return []}
+}
+
+function loadQuizStats(){
+  try{
+    var d=localStorage.getItem(getQuizKey());
+    if(d){var o=JSON.parse(d);qAttempts=o.a||0;qPerfect10=o.p10||0;qPerfect50=o.p50||0}
+  }catch(e){}
+}
+function saveQuizStats(){
+  try{localStorage.setItem(getQuizKey(),JSON.stringify({a:qAttempts,p10:qPerfect10,p50:qPerfect50}))}catch(e){}
+}
+function loadTierQuiz(tier){
+  try{var d=localStorage.getItem('h_'+tier+'_quiz');return d?JSON.parse(d):{a:0,p10:0,p50:0}}catch(e){return {a:0,p10:0,p50:0}}
+}
+function loadTierBadges(tier){
+  try{var d=localStorage.getItem('h_'+tier+'_badges');return d?JSON.parse(d):{}}catch(e){return {}}
+}
+
+function buildOrder(){
+  order=[];
+  for(var i=0;i<words.length;i++){
+    if(hskFilter>0&&words[i].l!==hskFilter)continue;
+    if(!done.find(function(x){return x[0]===i})) order.push(i);
+  }
+}
+
+// ===== LEARN =====
+function activateTab(i){document.querySelectorAll('.tab').forEach(function(t,j){t.classList.toggle('active',j===i)})}
+function showLearn(){$('appHeader').style.display='block';$('filterBar').style.display='flex';activateTab(0);scr('scrLearn');sndClick()}
+function doFlip(){
+  if(!$('ci').classList.contains('fd')){$('ci').classList.add('fd');$('lActs').style.display='flex';sndFlip()}
+}
+function showFront(){$('ci').classList.remove('fd');$('lActs').style.display='none'}
+
+function nextCard(){
+  if(lCur>=order.length){$('lWord').textContent='🎉';$('lPy').textContent=T('lDoneAll');showFront();return}
+  var w=words[order[lCur]];
+  // Calculate filter-aware progress
+  var fTotal=0,fDone=0,fRem=0;
+  for(var i=0;i<words.length;i++){
+    if(hskFilter>0&&words[i].l!==hskFilter)continue;
+    fTotal++;
+    var d=done.find(function(x){return x[0]===i});
+    if(d){fDone++;if(d[1])fRem++}
+  }
+  $('lWord').textContent=w.c;$('lPy').textContent=w.p;
+  $('lBur').textContent=w.m;$('lEx').textContent=w.e;
+  $('lEp').textContent=w.ep||'';$('lEm').textContent=w.em||'';
+  $('lDone').textContent=fDone;$('lTotal').textContent=fTotal;
+  $('lRem').textContent=fRem;
+  $('sFil').style.width=(fTotal>0?Math.round(fDone/fTotal*100):0)+'%';
+  $('sDays').textContent=done.length>50?Math.floor(done.length/20):0;
+  $('sPct').textContent=done.length>0?Math.round(lRem/done.length*100)+'%':'0%';
+  showFront();
+  renderRightPanel(w);
+}
+
+function mark(v){
+  if(v)lRem++;else lForg++;
+  done.push([order[lCur],v]);
+  saveProgress();
+  lCur++;sndClick();nextCard();
+}
+
+function renderRightPanel(w){
+  var c=$('riOptions');if(!c)return;riAnswered=false;
+  var dist=[];var tries=0;
+  while(dist.length<3&&tries<200){
+    var r=Math.floor(Math.random()*words.length);tries++;
+    if(r!==order[lCur]&&dist.indexOf(r)===-1)dist.push(r);
+  }
+  var all=[order[lCur]].concat(dist);
+  for(var a=all.length-1;a>0;a--){var b=Math.floor(Math.random()*(a+1));var t=all[a];all[a]=all[b];all[b]=t}
+  var h='';
+  for(var i=0;i<all.length;i++)h+='<div class="ri-opt" onclick="answerRightPanel('+i+','+all.indexOf(order[lCur])+')">'+words[all[i]].m+'</div>';
+  c.innerHTML=h;$('riResult').style.display='none';
+}
+
+function answerRightPanel(clicked,correct){
+  if(riAnswered)return;riAnswered=true;
+  var opts=document.querySelectorAll('.ri-opt');
+  if(clicked===correct){opts[clicked].classList.add('correct');sndCorrect()}
+  else{opts[clicked].classList.add('wrong');opts[correct].classList.add('show');sndWrong()}
+  var w=words[order[lCur]];
+  $('riExample').textContent=w.e;$('riExampleEp').textContent=w.ep||'';$('riExampleEm').textContent=w.em||'';
+  $('riResult').style.display='block';
+}
+
+function playWord(){
+  if(lCur>=order.length)return;var f=words[order[lCur]].audio;if(f)new Audio('audio/'+f).play().catch(function(){})}
+function playSent(){
+  if(lCur>=order.length)return;var f=words[order[lCur]].audio_e;if(f)new Audio('audio/'+f).play().catch(function(){})}
+
+// ===== QUIZ =====
+var badges={first:{icon:'🏅',name:{zh:'初試啼聲',my:'ပထမဆုံး'},cond:function(){return qAttempts>=1}},
+  perfect10:{icon:'💯',name:{zh:'滿分新手',my:'အမှတ်ပြည့်'},cond:function(){return qPerfect10>0}},
+  perfect50:{icon:'🌟',name:{zh:'完美達人',my:'ပြီးပြည့်စုံ'},cond:function(){return qPerfect50>0}},
+  hundred:{icon:'📚',name:{zh:'百詞斬',my:'စကားလုံး ၁၀၀'},cond:function(){return qTotalWords>=100}}};
+
+function setQCount(n){
+  qCount=n;
+  document.querySelectorAll('#scrQuizSetup .btn:not(#qsStart)').forEach(function(b){b.style.borderColor='var(--glass-border)';b.style.color='var(--text2)';b.style.background='var(--glass)'});
+  $('q'+n).style.borderColor=tiers[currentTier].color;$('q'+n).style.color=tiers[currentTier].color;$('q'+n).style.background='rgba(229,240,236,.8)';sndClick()
+}
+function showQuizSetup(){$('appHeader').style.display='block';$('filterBar').style.display='none';activateTab(1);scr('scrQuizSetup');sndClick()}
+
+function startQuiz(){
+  qItems=[];qCur=0;qCorr=0;qStage='word';qAnswered=false;
+  var pool=[];for(var i=0;i<words.length;i++)pool.push(i);
+  for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t}
+  var n=Math.min(qCount,pool.length);
+  for(var i=0;i<n;i++){
+    var correct=pool[i],wopts=pickOpts(correct,'m'),sopts=pickOpts(correct,'em');
+    qItems.push({wordIdx:correct,wordOpts:wopts,sentOpts:sopts,selWord:-1,selSent:-1,wordOk:false,sentOk:false});
+  }
+  qAttempts++;activateTab(1);scr('scrQuiz');
+  loadQuizStats();saveQuizStats();
+  showQuestion();sndClick()
+}
+
+function pickOpts(correctIdx,field){
+  var opts=[correctIdx],dist=[],tries=0;
+  while(dist.length<3&&tries<200){
+    var r=Math.floor(Math.random()*words.length);tries++;
+    if(r!==correctIdx&&dist.indexOf(r)===-1&&!(field==='em'&&words[r][field]===words[correctIdx][field]))dist.push(r);
+  }
+  var all=[correctIdx].concat(dist);
+  for(var a=all.length-1;a>0;a--){var b=Math.floor(Math.random()*(a+1));var t=all[a];all[a]=all[b];all[b]=t}
+  return all;
+}
+
+function playQuizWord(){if(qCur<qItems.length){var f=words[qItems[qCur].wordIdx].audio;if(f)new Audio('audio/'+f).play()}}
+function playQuizSent(){if(qCur<qItems.length){var f=words[qItems[qCur].wordIdx].audio_e;if(f)new Audio('audio/'+f).play()}}
+
+function showQuestion(){
+  if(qCur>=qItems.length){showResult();return}
+  var q=qItems[qCur],w=words[q.wordIdx];
+  qAnswered=false;qStage=q.selWord===-1?'word':'sent';
+  $('qWord').textContent=w.c;$('qPy').textContent=w.p;
+  $('qNum').textContent=(qCur+1)+'/'+qItems.length;
+  $('qScore').textContent='⭐'+qCorr;
+  $('qFil').style.width=((qCur)/qItems.length*100)+'%';
+  var sa=$('qSentArea');
+  if(qStage==='sent'){sa.style.display='block';$('qSentText').textContent=w.e;$('qSentEp').textContent=w.ep||''}
+  else{sa.style.display='none';$('qSentEp').textContent=''}
+  var opts=qStage==='word'?q.wordOpts:q.sentOpts;
+  var field=qStage==='word'?'m':'em';
+  var h='<div class="qopts-grid">';
+  for(var i=0;i<opts.length;i++){var opt=words[opts[i]];h+='<div class="qopt" onclick="answerQ('+i+')">'+opt[field]+'</div>'}
+  h+='</div>';$('qOpts').innerHTML=h;
+}
+
+function answerQ(idx){
+  if(qAnswered)return;qAnswered=true;
+  var q=qItems[qCur],w=words[q.wordIdx];
+  var stage=qStage,opts=stage==='word'?q.wordOpts:q.sentOpts;
+  var correctIdx=opts.indexOf(q.wordIdx),allOpts=document.querySelectorAll('.qopt');
+  if(stage==='word'){
+    q.selWord=idx;
+    if(idx===correctIdx){q.wordOk=true;qCorr+=2;allOpts[idx].classList.add('correct');sndCorrect();setTimeout(function(){qCur++;showQuestion()},800)}
+    else{q.wordOk=false;allOpts[idx].classList.add('wrong');allOpts[correctIdx].classList.add('show');sndWrong();setTimeout(function(){showSentenceStage()},800)}
+  }else{
+    q.selSent=idx;
+    if(idx===correctIdx){q.sentOk=true;qCorr+=1;allOpts[idx].classList.add('correct');sndCorrect()}
+    else{q.sentOk=false;allOpts[idx].classList.add('wrong');allOpts[correctIdx].classList.add('show');sndWrong()}
+    setTimeout(function(){qCur++;showQuestion()},800);
+  }
+  $('qScore').textContent='⭐'+qCorr;
+}
+
+function showSentenceStage(){
+  var q=qItems[qCur],w=words[q.wordIdx];
+  qStage='sent';qAnswered=false;
+  $('qSentArea').style.display='block';$('qSentText').textContent=w.e;$('qSentEp').textContent=w.ep||'';
+  var opts=q.sentOpts;
+  var h='<div class="qopts-grid">';
+  for(var i=0;i<opts.length;i++){var opt=words[opts[i]];h+='<div class="qopt" onclick="answerQ('+i+')">'+opt['em']+'</div>'}
+  h+='</div>';$('qOpts').innerHTML=h;
+}
+
+function showResult(){
+  scr('scrResult');
+  var total=qItems.length,score=qCorr,maxScore=total*2,pct=Math.round(score/maxScore*100);
+  qTotalWords=done.length;
+  if(score===maxScore){if(total===10)qPerfect10++;if(total===50)qPerfect50++}
+  saveQuizStats();
+  $('rIcon').textContent=pct>=80?'🎉':pct>=50?'👍':'💪';
+  $('rScore').textContent=score;$('rTotal').textContent=maxScore;$('rPct').textContent=pct+'% ('+total+'題)';
+  $('rCorr').textContent=score;$('rWron').textContent=maxScore-score;
+  var unlocked=[];
+  for(var k in badges){if(badges[k].cond()&&!loadBadge(k)){unlocked.push(k);unlockBadge(k)}}
+  var bh='';
+  for(var k in badges){
+    var bd=loadBadge(k),cls=bd?'bd unlocked':'bd locked',nm=badges[k].name[curLang]||badges[k].name.zh;
+    bh+='<div class="'+cls+'"><div class="bi">'+(bd?badges[k].icon:'🔒')+'</div><div class="bn">'+nm+'</div></div>';
+  }
+  $('rBadgesContainer').innerHTML='<div class="rbadge">'+bh+'</div>';
+  if(unlocked.length>0){var b=badges[unlocked[0]];$('bIcon').textContent=b.icon;$('bTitle').textContent=T('badgeUnlock');$('bName').textContent=b.name[curLang]||b.name.zh;$('ovBadge').classList.add('act');sndBadge()}
+  var errs=qItems.filter(function(x){return !x.wordOk&&!x.sentOk});
+  if(errs.length>0){
+    $('rErrors').style.display='block';var eh='';
+    for(var i=0;i<errs.length;i++){var w=words[errs[i].wordIdx];eh+='<div class="rei"><span class="rew">'+w.c+'</span><span class="rec">'+w.m+'</span></div>'}
+    $('rErrList').innerHTML=eh;
+  }else{$('rErrors').style.display='none'}
+}
+
+// ===== BADGES =====
+function loadBadge(k){try{var d=localStorage.getItem(getBadgeKey());if(d){var o=JSON.parse(d);return o[k]||null}return null}catch(e){return null}}
+function unlockBadge(k){try{var d=localStorage.getItem(getBadgeKey());var o=d?JSON.parse(d):{};o[k]=Date.now();localStorage.setItem(getBadgeKey(),JSON.stringify(o))}catch(e){}}
+function hideBadge(){$('ovBadge').classList.remove('act');sndClick()}
+function shuffleLearn(){
+  for(var i=order.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=order[i];order[i]=order[j];order[j]=t}
+  lCur=0;nextCard();sndClick()
+}
+function openManual(){$('ovManual').classList.add('act');sndClick()}
+function closeManual(){$('ovManual').classList.remove('act');sndClick()}
+
+// ===== SETTINGS =====
+function openSettings(){$('ovSettings').classList.add('act');sndClick()}
+function closeSettings(){$('ovSettings').classList.remove('act');sndClick()}
+function resetTier(tier){
+  if(!confirm(tier==='beginner'?T('rRstB'):tier==='intermediate'?T('rRstI'):T('rRstA')))return;
+  try{localStorage.removeItem('h_'+tier+'_done');localStorage.removeItem('h_'+tier+'_quiz');localStorage.removeItem('h_'+tier+'_badges')}catch(e){}
+  if(tier===currentTier){loadProgress();lRem=done.filter(function(x){return x[1]}).length;lForg=done.filter(function(x){return !x[1]}).length;buildOrder();lCur=0;nextCard()}
+  updateHomeRings();sndClick()
+}
+function resetAll(){
+  if(!confirm(T('rRstAll1')))return;
+  if(!confirm(T('rRstAll2')))return;
+  for(var k in tiers){try{localStorage.removeItem('h_'+k+'_done');localStorage.removeItem('h_'+k+'_quiz');localStorage.removeItem('h_'+k+'_badges')}catch(e){}}
+  loadProgress();lRem=0;lForg=0;buildOrder();lCur=0;nextCard();
+  updateHomeRings();sndClick()
+}
+
+function exportData(){
+  var data={version:'2.0',date:new Date().toISOString(),tiers:{}};
+  for(var k in tiers){
+    var done=loadTierProgress(k),quiz=loadTierQuiz(k),badges=loadTierBadges(k);
+    data.tiers[k]={done:done,quiz:quiz,badges:badges,count:tiers[k].data.length};
+  }
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hkawn_mai_backup.json';a.click();sndClick()
+}
+
+function importData(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var data=JSON.parse(ev.target.result);
+      if(!data.version||!data.tiers){alert('無效的備份檔案');return}
+      for(var k in data.tiers){
+        if(data.tiers[k].done)try{localStorage.setItem('h_'+k+'_done',JSON.stringify(data.tiers[k].done))}catch(e){}
+        if(data.tiers[k].quiz)try{localStorage.setItem('h_'+k+'_quiz',JSON.stringify(data.tiers[k].quiz))}catch(e){}
+        if(data.tiers[k].badges)try{localStorage.setItem('h_'+k+'_badges',JSON.stringify(data.tiers[k].badges))}catch(e){}
+      }
+      alert('✅ 进度已成功导入！');
+      updateHomeRings();sndClick()
+    }catch(e){alert('❌ 档案格式错误')}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+// ===== SOUND =====
+var audioCtx=null;
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||webkitAudioContext)();return audioCtx}
+function snd(freq,dur,type,vol){
+  try{var c=getCtx(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);
+    o.type=type||'sine';o.frequency.setValueAtTime(freq,c.currentTime);
+    g.gain.setValueAtTime(vol||.06,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+dur);
+    o.start(c.currentTime);o.stop(c.currentTime+dur)}catch(e){}
+}
+function sndClick(){snd(880,.08,'sine',.05)}
+function sndFlip(){snd(400,.25,'triangle',.05);setTimeout(function(){snd(600,.15,'triangle',.04)},100)}
+function sndCorrect(){snd(523,.15,'sine',.06);setTimeout(function(){snd(659,.15,'sine',.05)},120);setTimeout(function(){snd(784,.2,'sine',.05)},240)}
+function sndWrong(){snd(350,.25,'sawtooth',.05);setTimeout(function(){snd(280,.35,'sawtooth',.04)},150)}
+function sndBadge(){snd(784,.12,'sine',.06);setTimeout(function(){snd(988,.12,'sine',.05)},120);setTimeout(function(){snd(1175,.18,'sine',.06)},240)}
+
+// ===== CURSOR GLOW =====
+(function(){var g=$('cursorGlow'),mx=-400,my=-400,tx=-400,ty=-400,isM='ontouchstart'in window||navigator.maxTouchPoints>0;
+  if(isM){g.style.display='none';return}
+  document.addEventListener('mousemove',function(e){tx=e.clientX;ty=e.clientY});
+  function a(){mx+=(tx-mx)*.08;my+=(ty-my)*.08;g.style.transform='translate('+mx+'px,'+my+'px)translate(-50%,-50%)';requestAnimationFrame(a)}
+  a()})();
+
+// ===== ORBS =====
+(function(){var c=$('orbContainer');if(!c||'ontouchstart'in window)return;
+  var cols=['rgba(200,160,150,','rgba(212,167,106,','rgba(180,150,160,'];
+  for(var i=0;i<5;i++){
+    var o=document.createElement('div');o.className='orb';var sz=8+Math.random()*20;
+    o.style.width=sz+'px';o.style.height=sz+'px';o.style.background=cols[i%3]+(0.06+Math.random()*0.08)+')';
+    o._x=Math.random()*100;o._y=Math.random()*100;o._dx=(Math.random()-.5)*.3;o._dy=(Math.random()-.5)*.3;
+    c.appendChild(o);
+  }
+  function m(){var orbs=c.querySelectorAll('.orb');for(var i=0;i<orbs.length;i++){var o=orbs[i];
+    o._x+=o._dx;o._y+=o._dy;if(o._x<0||o._x>100){o._dx*=-1;o._x=Math.max(0,Math.min(100,o._x))}
+    if(o._y<0||o._y>100){o._dy*=-1;o._y=Math.max(0,Math.min(100,o._y))}
+    o.style.transform='translate('+o._x+'vw,'+o._y+'vh)'}requestAnimationFrame(m)}
+  m()})();
+
+// ===== STARS =====
+(function(){var sf=$('starField');if(!sf||'ontouchstart'in window)return;
+  for(var i=0;i<120;i++){var s=document.createElement('div');s.className='star';
+    var r=Math.random();if(r<.5)s.classList.add('s1');else if(r<.8)s.classList.add('s2');else s.classList.add('s3');
+    s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';
+    s.style.setProperty('--d',(2+Math.random()*4)+'s');s.style.animationDelay=(Math.random()*6)+'s';
+    sf.appendChild(s)}}());
+
+// ===== INIT =====
+loadLang();loadTheme();applyLang();
+currentTier='beginner';
+loadTierData('beginner');
+loadQuizStats();
+ updateHomeRings();
+ showDailySentence();startDailyRotation();showTodayLearn();showHomeStats();
+ scr('scrHome');
+$('appHeader').style.display='none';
+$('filterBar').style.display='none';
+// PWA Service Worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('service-worker.js').catch(function(){});
+}
+</script>
+</body>
+</html>

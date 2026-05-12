@@ -1,0 +1,16 @@
+{
+  "name": "HKAWN MAI 學中文",
+  "short_name": "HKAWN MAI",
+  "description": "HKAWN MAI 學中文 — 緬中對照 HSK 學習工具",
+  "start_url": "/hkawnmai/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F2E8E2",
+  "theme_color": "#5B9F8F",
+  "lang": "zh-CN",
+  "scope": "/hkawnmai/",
+  "icons": [
+    { "src": "/hkawnmai/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/hkawnmai/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

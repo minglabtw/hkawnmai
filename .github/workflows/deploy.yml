@@ -1,0 +1,43 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare assets
+        run: |
+          mkdir -p build/data build/icons
+          cp prototype.html build/index.html
+          cp manifest.json build/
+          cp service-worker.js build/
+          cp icons/*.png build/icons/
+          cp data/*.js build/data/
+          cp data/*.json build/data/
+          if [ -d data/reference ]; then
+            cp -r data/reference build/data/
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,7 +1,10 @@
 node_modules/
 www/
+android/
 android/.gradle/
 android/build/
 android/app/build/
+audio/
+.opencode/
 .DS_Store
 *.log

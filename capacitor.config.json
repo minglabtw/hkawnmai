@@ -1,0 +1,21 @@
+{
+  "appId": "minglab.hkawnmai.app",
+  "appName": "HKAWN MAI",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "buildOptions": {
+      "keystorePath": null,
+      "keystoreAlias": null
+    }
+  },
+  "backgroundColor": "#F2E8E2",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1000,
+      "backgroundColor": "#F2E8E2"
+    }
+  }
+}

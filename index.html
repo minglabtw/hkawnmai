@@ -10,6 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>HKAWN MAI 學中文</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-XMVX28GYb/ZQ1C2Bq0e0ypGDRix3Gd0MutD3I9HMFJfkKh0CLdf8t6jD6hJmEVu+eI5H7S9mD9S2xTf7pcDOXw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <style>
 :root{--bg1:#F2E8E2;--bg2:#EBE0D8;--bg3:#E5DCD5;--text:#2C2A28;--text2:#8A8580;--text3:#A39E98;--glass:rgba(251,248,242,.82);--glass-border:rgba(255,255,255,.35);--shadow:rgba(0,0,0,.06);--card-bg:rgba(251,248,242,.85);--card-back:rgba(240,245,236,.88);--tier:#5B9F8F;--tier-glow:rgba(91,159,143,.12);--tier2:#5B9F8F}
 .dark{--bg1:#1E1822;--bg2:#14101A;--bg3:#1A1620;--text:#E8E3DC;--text2:#9A9590;--text3:#7A7570;--glass:rgba(40,34,48,.85);--glass-border:rgba(255,255,255,.06);--shadow:rgba(0,0,0,.3);--card-bg:rgba(50,44,55,.88);--card-back:rgba(48,52,48,.88);--tier:#5B9F8F;--tier-glow:rgba(180,120,200,.12);--tier2:#5B9F8F}
@@ -332,8 +333,12 @@ body:hover #cursorGlow{opacity:1}
 
 <!-- ===== LOADING OVERLAY ===== -->
 <div id="loadingOverlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg1);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;opacity:1;transition:opacity .3s">
-  <div style="width:36px;height:36px;border:3px solid var(--glass-border);border-top-color:var(--tier);border-radius:50%;animation:loadSpin .6s linear infinite"></div>
+  <div style="width:36px;height:36px;border:3px solid var(--tier);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite"></div>
   <div style="font-size:14px;color:var(--text2);margin-top:12px" id="loadingText">载入中...</div>
+  <div style="width:200px;height:6px;background:var(--bg3);border-radius:3px;margin-top:16px;overflow:hidden;display:none" id="loadingBarWrap">
+   <div style="width:0%;height:100%;background:var(--tier);border-radius:3px;transition:width .2s" id="loadingBar"></div>
+  </div>
+  <div style="font-size:12px;color:var(--text3);margin-top:6px" id="loadingPct"></div>
 </div>
 <style>
 @keyframes loadSpin{to{transform:rotate(360deg)}}
@@ -637,7 +642,11 @@ function toggleTheme(){document.body.classList.toggle('dark');var d=document.bod
 // ===== TIER =====
 var hskFilter=0,loadingTier=null;
 
-function showLoading(t){var o=$('loadingOverlay');if(o){if(t)$('loadingText').textContent=t||'载入中...';o.style.display='flex'}}
+function showLoading(t,p){var o=$('loadingOverlay');if(o){if(t)$('loadingText').textContent=t||'载入中...';o.style.display='flex'}
+  var w=$('loadingBarWrap'),b=$('loadingBar'),c=$('loadingPct');
+  if(w&&b&&c){
+    if(p){w.style.display='block';b.style.width='0%';c.textContent='0%'}
+    else{w.style.display='none';b.style.width='0%';c.textContent=''}}}
 function hideLoading(){var o=$('loadingOverlay');if(o)o.style.display='none'}
 
 function loadScript(url,cb){
@@ -659,6 +668,78 @@ function ensureTierData(tier,cb){
     else if(tier==='advanced'&&typeof VOCAB_ADVANCED!=='undefined')tiers[tier].data=VOCAB_ADVANCED;
     loadingTier=null;hideLoading();if(cb)cb()
   });
+}
+
+// ===== AUDIO STORE (PWA) =====
+var IS_PWA = location.protocol === 'https:';
+var AUDIO_REPO = 'https://github.com/minglabtw/hkawnmai/releases/download/v0.2.1/';
+var audioDB = null;
+var audioTiers = {beginner:'audio-beginner.zip',intermediate:'audio-intermediate.zip',advanced:'audio-advanced.zip'};
+
+function openAudioDB(cb){
+  if(audioDB){if(cb)cb();return}
+  var r=indexedDB.open('hkawnmai-audio',1);
+  r.onupgradeneeded=function(e){e.target.result.createObjectStore('audio',{keyPath:'name'})};
+  r.onsuccess=function(e){audioDB=e.target.result;if(cb)cb()};
+  r.onerror=function(){if(cb)cb()};
+}
+
+function getAudioBlob(f,cb){
+  if(!audioDB||!IS_PWA){cb(null);return}
+  var tx=audioDB.transaction('audio','readonly');
+  var req=tx.objectStore('audio').get(f);
+  req.onsuccess=function(){cb(req.result?req.result.data:null)};
+  req.onerror=function(){cb(null)};
+}
+
+function ensureAudio(tier,cb){
+  if(!IS_PWA){if(cb)cb();return}
+  var cached;
+  try{cached=JSON.parse(localStorage.getItem('h_audio_tiers')||'{}')}catch(e){cached={}}
+  if(cached[tier]){if(cb)cb();return}
+  showLoading('音頻下載中...',true);
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET',AUDIO_REPO+audioTiers[tier],true);
+  xhr.responseType='blob';
+  xhr.onprogress=function(e){
+    if(e.total){
+      var p=Math.round(e.loaded/e.total*100);
+      $('loadingBar').style.width=p+'%';
+      $('loadingPct').textContent=p+'%';
+    }
+  };
+  xhr.onload=function(){
+    if(xhr.status!==200){hideLoading();if(cb)cb();return}
+    JSZip.loadAsync(xhr.response).then(function(zip){
+      var entries=[],promises=[];
+      zip.forEach(function(path,file){
+        promises.push(file.async('blob').then(function(blob){entries.push({name:path,data:blob})}));
+      });
+      return Promise.all(promises).then(function(){
+        var tx=audioDB.transaction('audio','readwrite');
+        for(var i=0;i<entries.length;i++)tx.objectStore('audio').put(entries[i]);
+        tx.oncomplete=function(){
+          cached[tier]=true;
+          try{localStorage.setItem('h_audio_tiers',JSON.stringify(cached))}catch(e){}
+          hideLoading();
+          if(cb)cb()
+        };
+      });
+    }).catch(function(){hideLoading();if(cb)cb()});
+  };
+  xhr.onerror=function(){hideLoading();if(cb)cb()};
+  xhr.send();
+}
+
+function playAudio(f){
+  if(!f)return;
+  if(!IS_PWA){
+    new Audio('audio/'+f).play().catch(function(){});
+  }else{
+    getAudioBlob(f,function(blob){
+      if(blob)new Audio(URL.createObjectURL(blob)).play().catch(function(){});
+    });
+  }
 }
 
 function loadTierData(tier){
@@ -712,6 +793,7 @@ function switchTier(tier){
     scr('scrLearn');
     applyLang();sndClick()
   });
+  openAudioDB(function(){ensureAudio(tier)});
 }
 
 function continueLearning(){
@@ -719,7 +801,8 @@ function continueLearning(){
     loadTierData(currentTier);
     $('appHeader').style.display='block';activateTab(0);
     scr('scrLearn');
-    applyLang();sndClick()
+    applyLang();sndClick();
+    openAudioDB(function(){ensureAudio(currentTier)})
   });
 }
 
@@ -909,9 +992,9 @@ function answerRightPanel(clicked,correct){
 }
 
 function playWord(){
-  if(lCur>=order.length)return;var f=words[order[lCur]].audio;if(f)new Audio('audio/'+f).play().catch(function(){})}
+  if(lCur>=order.length)return;playAudio(words[order[lCur]].audio)}
 function playSent(){
-  if(lCur>=order.length)return;var f=words[order[lCur]].audio_e;if(f)new Audio('audio/'+f).play().catch(function(){})}
+  if(lCur>=order.length)return;playAudio(words[order[lCur]].audio_e)}
 
 // ===== QUIZ =====
 var badges={first:{icon:'🏅',name:{zh:'初試啼聲',my:'ပထမဆုံး'},cond:function(){return qAttempts>=1}},
@@ -951,8 +1034,8 @@ function pickOpts(correctIdx,field){
   return all;
 }
 
-function playQuizWord(){if(qCur<qItems.length){var f=words[qItems[qCur].wordIdx].audio;if(f)new Audio('audio/'+f).play()}}
-function playQuizSent(){if(qCur<qItems.length){var f=words[qItems[qCur].wordIdx].audio_e;if(f)new Audio('audio/'+f).play()}}
+function playQuizWord(){if(qCur<qItems.length)playAudio(words[qItems[qCur].wordIdx].audio)}
+function playQuizSent(){if(qCur<qItems.length)playAudio(words[qItems[qCur].wordIdx].audio_e)}
 
 function showQuestion(){
   if(qCur>=qItems.length){showResult();return}
@@ -1137,6 +1220,7 @@ loadQuizStats();
  updateHomeRings();
  showDailySentence();startDailyRotation();showTodayLearn();showHomeStats();
  scr('scrHome');
+openAudioDB(function(){ensureAudio('beginner')});
 $('appHeader').style.display='none';
 $('filterBar').style.display='none';
 // PWA Service Worker
